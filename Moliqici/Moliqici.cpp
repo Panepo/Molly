@@ -12,7 +12,22 @@
 
 using namespace std;
 using namespace openni;
+using namespace cv;
 
+void depthTrans(const Mat &src, Mat &dst) {
+	dst.create(src.size(), src.type());
+	//int widthLimit = src.channels() * src.cols;
+	for (int iH = 0; iH<src.rows; iH++) {
+		const uchar *curPtr = src.ptr<const uchar>(iH);
+		uchar *dstPtr = dst.ptr<uchar>(iH);
+		for (int iW = 0; iW<src.cols*2; iW++) {
+			if (curPtr[iW] == 0)
+				dstPtr[iW] = 0;
+			else
+				dstPtr[iW] = saturate_cast<uchar>(-1 * curPtr[iW] + 255);
+		}
+	}
+}
 
 int main(int argc, char **argv)
 {
@@ -101,6 +116,7 @@ int main(int argc, char **argv)
 	mDepthStream.start();
 	mColorStream.start();
 	int iMaxDepth = mDepthStream.getMaxPixelValue();
+	int iMinDepth = mDepthStream.getMinPixelValue();
 	while (true)
 	{
 		// 7. check is color stream is available
@@ -130,7 +146,9 @@ int main(int argc, char **argv)
 				CV_16UC1, (void*)mDepthFrame.getData());
 			// 8c. re-map depth data [0,Max] to [0,255]
 			cv::Mat mScaledDepth;
-			mImageDepth.convertTo(mScaledDepth, CV_8U, 255.0 / iMaxDepth);
+			mImageDepth.convertTo(mImageDepth, CV_16U, 65535.0 / iMaxDepth);
+			depthTrans(mImageDepth, mScaledDepth);
+
 			// 8d. show image
 			cv::imshow("Moliqici: Depth Image", mScaledDepth);
 		}
