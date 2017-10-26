@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Molly", "Molly\Molly.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Moliqici", "Moliqici\Moliqici.vcxproj", "{ABCC3186-8571-478D-A017-5F6AA1F28F82}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Molicivi", "Molicivi\Molicivi.vcxproj", "{7B2421D9-E634-4504-8387-C587589E44AC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -45,6 +47,18 @@ Global
 		{ABCC3186-8571-478D-A017-5F6AA1F28F82}.Release|x64.Build.0 = Release|x64
 		{ABCC3186-8571-478D-A017-5F6AA1F28F82}.Release|x86.ActiveCfg = Release|Win32
 		{ABCC3186-8571-478D-A017-5F6AA1F28F82}.Release|x86.Build.0 = Release|Win32
+		{7B2421D9-E634-4504-8387-C587589E44AC}.Debug|ARM.ActiveCfg = Debug|ARM
+		{7B2421D9-E634-4504-8387-C587589E44AC}.Debug|ARM.Build.0 = Debug|ARM
+		{7B2421D9-E634-4504-8387-C587589E44AC}.Debug|x64.ActiveCfg = Debug|x64
+		{7B2421D9-E634-4504-8387-C587589E44AC}.Debug|x64.Build.0 = Debug|x64
+		{7B2421D9-E634-4504-8387-C587589E44AC}.Debug|x86.ActiveCfg = Debug|Win32
+		{7B2421D9-E634-4504-8387-C587589E44AC}.Debug|x86.Build.0 = Debug|Win32
+		{7B2421D9-E634-4504-8387-C587589E44AC}.Release|ARM.ActiveCfg = Release|ARM
+		{7B2421D9-E634-4504-8387-C587589E44AC}.Release|ARM.Build.0 = Release|ARM
+		{7B2421D9-E634-4504-8387-C587589E44AC}.Release|x64.ActiveCfg = Release|x64
+		{7B2421D9-E634-4504-8387-C587589E44AC}.Release|x64.Build.0 = Release|x64
+		{7B2421D9-E634-4504-8387-C587589E44AC}.Release|x86.ActiveCfg = Release|Win32
+		{7B2421D9-E634-4504-8387-C587589E44AC}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
