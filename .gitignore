@@ -536,3 +536,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# ========================
+imageCapture/
+Generated Files/
