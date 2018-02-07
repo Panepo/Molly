@@ -4,14 +4,12 @@
 
 #include "stdafx.h"
 
-#include <opencv2\core\core.hpp>
-#include <opencv2\highgui\highgui.hpp>
-#include <opencv2\imgproc\imgproc.hpp>
-
+#include <opencv2/opencv.hpp>
 #include <librealsense2\rs.hpp>
+#include <librealsense2\rsutil.h>
 
 
-int main()
+int main(int argc, char * argv[]) try
 {
 	//Contruct a pipeline which abstracts the device
 	rs2::pipeline pipe;
@@ -26,30 +24,26 @@ int main()
 	//Instruct pipeline to start streaming with the requested configuration
 	pipe.start(cfg);
 
-	// Camera warmup - dropping several first frames to let auto-exposure stabilize
-	rs2::frameset frames;
-	for (int i = 0; i < 30; i++)
-	{
-		//Wait for all configured streams to produce a frame
-		//frames = pipe.wait_for_frames();
-	}
+	const auto ir_window_name = "IR image";
+	cv::namedWindow(ir_window_name, cv::WINDOW_AUTOSIZE);
 
-	//cv::namedWindow("Display Image", cv::WINDOW_AUTOSIZE);
+	const auto depth_window_name = "Depth image";
+	cv::namedWindow(depth_window_name, cv::WINDOW_AUTOSIZE);
 	
 	while (true)
 	{
-		frames = pipe.wait_for_frames();
+		rs2::frameset data = pipe.wait_for_frames();
 
 		//Get each frame
-		rs2::frame ir_frame = frames.first(RS2_STREAM_INFRARED);
-		rs2::frame depth_frame = frames.get_depth_frame();
+		rs2::frame ir_frame = data.first(RS2_STREAM_INFRARED);
+		rs2::frame depth_frame = data.get_depth_frame();
 
 		// Creating OpenCV matrix from IR image
 		cv::Mat ir(cv::Size(1280, 720), CV_8UC1, (void*)ir_frame.get_data(), cv::Mat::AUTO_STEP);
 
 		// Apply Histogram Equalization
-		cv::equalizeHist(ir, ir);
-		cv::applyColorMap(ir, ir, cv::COLORMAP_JET);
+		//cv::equalizeHist(ir, ir);
+		//cv::applyColorMap(ir, ir, cv::COLORMAP_JET);
 
 		
 		cv::Mat depth(cv::Size(1280, 720), CV_16UC1, (void*)depth_frame.get_data(), cv::Mat::AUTO_STEP);
@@ -68,6 +62,15 @@ int main()
 		}
 	}
 	
-	return 0;
+	return EXIT_SUCCESS;
 }
-
+catch (const rs2::error & e)
+{
+	std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
+	return EXIT_FAILURE;
+}
+catch (const std::exception& e)
+{
+	std::cerr << e.what() << std::endl;
+	return EXIT_FAILURE;
+}
