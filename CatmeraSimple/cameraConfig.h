@@ -4,6 +4,8 @@
 
 #include <librealsense2/rs.hpp>
 
+#define WindowTitle "Molly Catmera"
+
 #define EnableColor		1
 #define EnableInfrared	2
 #define EnableDepth		4
@@ -42,32 +44,28 @@ static int detectDevice()
 				name = device.get_info(RS2_CAMERA_INFO_NAME);
 			
 			std::cout << name << std::endl;
+
+			if (name == "Intel RealSense 410")
+			{
+				stream = EnableInfrared | EnableDepth;
+				break;
+			}
+			else if (name == "Intel RealSense 415")
+			{
+				stream = EnableColor | EnableDepth;
+				break;
+			}
+			else if (name == "Intel RealSense 435")
+			{
+				stream = EnableColor | EnableDepth;
+				break;
+			}
 		}
 
-		if (name == "Intel RealSense 410")
-			stream = EnableInfrared | EnableDepth;
-		else if (name == "Intel RealSense 415")
-			stream = EnableColor | EnableInfrared | EnableDepth;
-		else if (name == "Intel RealSense 435")
-			stream = EnableColor | EnableInfrared | EnableDepth;
+		
 	}
 
 	return stream;
-}
-
-static std::string get_device_name(const rs2::device& dev)
-{
-	// Each device provides some information on itself, such as name:
-	std::string name = "Unknown Device";
-	if (dev.supports(RS2_CAMERA_INFO_NAME))
-		name = dev.get_info(RS2_CAMERA_INFO_NAME);
-
-	// and the serial number of the device:
-	std::string sn = "########";
-	if (dev.supports(RS2_CAMERA_INFO_SERIAL_NUMBER))
-		sn = std::string("#") + dev.get_info(RS2_CAMERA_INFO_SERIAL_NUMBER);
-
-	return name + " " + sn;
 }
 
 #endif // !CAMERACONFIG_H

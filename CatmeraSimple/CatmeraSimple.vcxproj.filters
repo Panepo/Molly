@@ -30,7 +30,7 @@
     <ClInclude Include="cameraConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="appState.h">
+    <ClInclude Include="app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -39,6 +39,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CatmeraSimple.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="formatTrans.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
