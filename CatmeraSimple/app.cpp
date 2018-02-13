@@ -3,10 +3,6 @@
 
 app::app()
 {
-	state = APPSTATE_EXIT;
-	std::fill_n(pixel, 2, 0);
-	std::fill_n(point, 3, 0);
-
 	stream = detectDevice();
 	if (stream & EnableColor)
 	{
@@ -29,13 +25,29 @@ app::app()
 
 	auto range = sensor.get_option_range(RS2_OPTION_VISUAL_PRESET);
 	for (auto i = range.min; i < range.max; i += range.step)
-		if (std::string(sensor.get_option_value_description(RS2_OPTION_VISUAL_PRESET, i)) == VisualPreset)
+		if (std::string(sensor.get_option_value_description(RS2_OPTION_VISUAL_PRESET, i)) == visualPreset)
 			sensor.set_option(RS2_OPTION_VISUAL_PRESET, i);
 
 	auto profile = cfg.get_stream(RS2_STREAM_DEPTH).as<rs2::video_stream_profile>();
 	intrinsics = profile.get_intrinsics();
 
-	cv::namedWindow(WindowTitle, cv::WINDOW_AUTOSIZE);
+	cv::namedWindow(windowTitle, cv::WINDOW_AUTOSIZE);
+}
+
+void app::process()
+{
+	std::clock_t begin = clock();
+	
+	if (state == APPSTATE_COLOR)
+		stateColor();
+	else if (state == APPSTATE_INFRARED)
+		stateInfrared();
+	else if (state == APPSTATE_DEPTH)
+		stateDepth();
+
+	kbCommand();
+	clock_t end = clock();
+	elapsed = double(end - begin) * 1000 / CLOCKS_PER_SEC;
 }
 
 void app::stateColor()
@@ -46,11 +58,18 @@ void app::stateColor()
 
 	cv::Mat colorMat = funcFormat::frame2Mat(alignedFrame.get_color_frame());
 	rs2::depth_frame depth = alignedFrame.get_depth_frame();
+	depth = spat_filter.process(depth);
+	depth = temp_filter.process(depth);
 	
-	cv::setMouseCallback(WindowTitle, getCoordPixelS, this);
+	cv::setMouseCallback(windowTitle, getCoordPixelS, this);
 	streamPointer(&colorMat, &depth, &intrinsics);
+	
+	std::ostringstream strs;
+	strs << elapsed;
+	std::string str = strs.str() + " ms (" + std::to_string((int)point[0]) + " " + std::to_string((int)point[1]) + " " + std::to_string((int)point[2]) + ")";
+	streamInfoer(&colorMat, str);
 
-	cv::imshow(WindowTitle, colorMat);
+	cv::imshow(windowTitle, colorMat);
 }
 
 void app::stateInfrared()
@@ -61,11 +80,18 @@ void app::stateInfrared()
 
 	cv::Mat infraredMat = funcFormat::frame2Mat(alignedFrame.first(RS2_STREAM_INFRARED));
 	rs2::depth_frame depth = alignedFrame.get_depth_frame();
+	depth = spat_filter.process(depth);
+	depth = temp_filter.process(depth);
 	
-	cv::setMouseCallback(WindowTitle, getCoordPixelS, this);
+	cv::setMouseCallback(windowTitle, getCoordPixelS, this);
 	streamPointer(&infraredMat, &depth, &intrinsics);
 
-	cv::imshow(WindowTitle, infraredMat);
+	std::ostringstream strs;
+	strs << elapsed;
+	std::string str = strs.str() + " ms (" + std::to_string((int)point[0]) + " " + std::to_string((int)point[1]) + " " + std::to_string((int)point[2]) + ")";
+	streamInfoer(&infraredMat, str);
+
+	cv::imshow(windowTitle, infraredMat);
 }
 
 void app::stateDepth()
@@ -81,16 +107,23 @@ void app::stateDepth()
 	rs2::frameset alignedFrame = alignTo.process(data);
 
 	rs2::depth_frame depth = alignedFrame.get_depth_frame();
+	depth = spat_filter.process(depth);
+	depth = temp_filter.process(depth);
 	rs2::frame depthColor = colorize(depth);
 	cv::Mat depthMat = funcFormat::frame2Mat(depthColor);
 
-	cv::setMouseCallback(WindowTitle, getCoordPixelS, this);
+	cv::setMouseCallback(windowTitle, getCoordPixelS, this);
 	streamPointer(&depthMat, &depth, &intrinsics);
 
-	cv::imshow(WindowTitle, depthMat);
+	std::ostringstream strs;
+	strs << elapsed;
+	std::string str = strs.str() + " ms (" + std::to_string((int)point[0]) + " " + std::to_string((int)point[1]) + " " + std::to_string((int)point[2]) + ")";
+	streamInfoer(&depthMat, str);
+
+	cv::imshow(windowTitle, depthMat);
 }
 
-void app::stateSwitch()
+void app::kbCommand()
 {
 	char key = cv::waitKey(10);
 
@@ -110,6 +143,36 @@ void app::stateSwitch()
 				state = APPSTATE_INFRARED;
 		}
 	}
+}
+
+void app::setResolution(int stream, int width, int height, int fps)
+{
+	switch (stream)
+	{
+	case RS2_STREAM_COLOR:
+		ColorWidth = width;
+		ColorHeight = height;
+		ColorFPS = fps;
+		break;
+	case RS2_STREAM_INFRARED:
+	case RS2_STREAM_DEPTH:
+		DepthWidth = width;
+		DepthHeight = height;
+		DepthFPS = fps;
+		break;
+	default:
+		break;
+	}
+}
+
+void app::setWindowTitle(std::string title)
+{
+	windowTitle = title;
+}
+
+void app::setVisualPreset(std::string preset)
+{
+	visualPreset = preset;
 }
 
 void app::getCoordPixelS(int event, int x, int y, int flags, void* userdata)
@@ -137,4 +200,11 @@ void app::streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics*
 
 	cv::putText(*input, text, cv::Point((int)pixel[0] - 100, (int)pixel[1] + 40), pointerFontA, 1, pointerColorFA, 1, cv::LINE_AA);
 	cv::putText(*input, text, cv::Point((int)pixel[0] - 100, (int)pixel[1] + 40), pointerFontB, 1, pointerColorFB, 1, cv::LINE_AA);
+}
+
+void app::streamInfoer(cv::Mat* input, std::string text)
+{
+	cv::Size size = input->size();
+	cv::copyMakeBorder(*input, *input, 0, 40, 0, 0, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
+	cv::putText(*input, text, cv::Point(10, size.height + 30), inforerFont, 1, inforerColor, 1, cv::LINE_AA);
 }

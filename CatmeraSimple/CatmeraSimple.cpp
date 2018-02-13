@@ -10,17 +10,14 @@
 int main(int argc, char * argv[]) try
 {
 	app catmera;
+	catmera.setResolution(RS2_STREAM_COLOR, 1280, 720, 30);
+	catmera.setResolution(RS2_STREAM_DEPTH, 1280, 720, 30);
+	catmera.setWindowTitle("Molly Catmera");
+	catmera.setVisualPreset("High Density");
 	
 	while (catmera.state)
 	{
-		if (catmera.state == APPSTATE_COLOR)
-			catmera.stateColor();
-		else if (catmera.state == APPSTATE_INFRARED)
-			catmera.stateInfrared();
-		else if (catmera.state == APPSTATE_DEPTH)
-			catmera.stateDepth();
-		
-		catmera.stateSwitch();
+		catmera.process();
 	}
 
 	return EXIT_SUCCESS;

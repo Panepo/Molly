@@ -4,21 +4,9 @@
 
 #include <librealsense2/rs.hpp>
 
-#define WindowTitle "Molly Catmera"
-
 #define EnableColor		1
 #define EnableInfrared	2
 #define EnableDepth		4
-
-#define ColorWidth	1280
-#define ColorHeight  720
-#define ColorFPS	  30
-
-#define DepthWidth	1280
-#define DepthHeight  720
-#define DepthFPS      30
-
-#define VisualPreset "High Density"
 
 static int detectDevice()
 {
