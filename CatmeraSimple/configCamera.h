@@ -1,6 +1,6 @@
 #pragma once
-#ifndef CAMERACONFIG_H
-#define CAMERACONFIG_H
+#ifndef CONFIGCAMERA_H
+#define CONFIGCAMERA_H
 
 #include <librealsense2/rs.hpp>
 
@@ -68,4 +68,4 @@ static int detectDevice()
 	return stream;
 }
 
-#endif // !CAMERACONFIG_H
+#endif // !CONFIGCAMERA_H

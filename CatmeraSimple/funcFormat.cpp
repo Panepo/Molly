@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "formatTrans.h"
+#include "funcFormat.h"
 
-cv::Mat formatTrans::frame2Mat(const rs2::frame & f)
+cv::Mat funcFormat::frame2Mat(const rs2::frame & f)
 {
 	auto vf = f.as<rs2::video_frame>();
 	const int w = vf.get_width();

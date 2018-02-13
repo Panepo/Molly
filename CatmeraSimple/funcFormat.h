@@ -1,13 +1,13 @@
 #pragma once
-#ifndef FORMATTRANS_H
-#define FORMATTRANS_H
+#ifndef FUNCFORMAT_H
+#define FUNCFORMAT_H
 
 #include <librealsense2/rs.hpp>
 #include <opencv2/opencv.hpp>
 
-class formatTrans
+class funcFormat
 {
 public:
 	static cv::Mat frame2Mat(const rs2::frame& f);
 };
-#endif // !FORMATTRANS_H
+#endif // !FUNCFORMAT_H
