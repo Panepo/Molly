@@ -6,39 +6,69 @@ app::app()
 	state = APPSTATE_EXIT;
 	std::fill_n(pixel, 2, 0);
 	std::fill_n(point, 3, 0);
+
+	stream = detectDevice();
+	if (stream & EnableColor)
+	{
+		config.enable_stream(RS2_STREAM_COLOR, ColorWidth, ColorHeight, RS2_FORMAT_BGR8, ColorFPS);
+		state = APPSTATE_COLOR;
+	}
+
+	if (stream & EnableInfrared)
+	{
+		config.enable_stream(RS2_STREAM_INFRARED, DepthWidth, DepthHeight, RS2_FORMAT_Y8, DepthFPS);
+		state = APPSTATE_INFRARED;
+	}
+
+	if (stream & EnableDepth)
+		config.enable_stream(RS2_STREAM_DEPTH, DepthWidth, DepthHeight, RS2_FORMAT_Z16, DepthFPS);
+
+	rs2::pipeline_profile cfg = pipeline.start(config);
+
+	auto sensor = cfg.get_device().first<rs2::depth_sensor>();
+
+	auto range = sensor.get_option_range(RS2_OPTION_VISUAL_PRESET);
+	for (auto i = range.min; i < range.max; i += range.step)
+		if (std::string(sensor.get_option_value_description(RS2_OPTION_VISUAL_PRESET, i)) == VisualPreset)
+			sensor.set_option(RS2_OPTION_VISUAL_PRESET, i);
+
+	auto profile = cfg.get_stream(RS2_STREAM_DEPTH).as<rs2::video_stream_profile>();
+	intrinsics = profile.get_intrinsics();
+
+	cv::namedWindow(WindowTitle, cv::WINDOW_AUTOSIZE);
 }
 
-void app::stateColor(rs2::pipeline* pipeline, rs2_intrinsics* intrin)
+void app::stateColor()
 {
 	rs2::align alignTo(RS2_STREAM_COLOR);
-	rs2::frameset data = pipeline->wait_for_frames();
+	rs2::frameset data = pipeline.wait_for_frames();
 	rs2::frameset alignedFrame = alignTo.process(data);
 
 	cv::Mat colorMat = funcFormat::frame2Mat(alignedFrame.get_color_frame());
 	rs2::depth_frame depth = alignedFrame.get_depth_frame();
 	
 	cv::setMouseCallback(WindowTitle, getCoordPixelS, this);
-	streamPointer(&colorMat, &depth, intrin);
+	streamPointer(&colorMat, &depth, &intrinsics);
 
 	cv::imshow(WindowTitle, colorMat);
 }
 
-void app::stateInfrared(rs2::pipeline* pipeline, rs2_intrinsics* intrin)
+void app::stateInfrared()
 {
-	rs2::align alignTo(RS2_STREAM_DEPTH);
-	rs2::frameset data = pipeline->wait_for_frames();
+	rs2::align alignTo(RS2_STREAM_INFRARED);
+	rs2::frameset data = pipeline.wait_for_frames();
 	rs2::frameset alignedFrame = alignTo.process(data);
 
 	cv::Mat infraredMat = funcFormat::frame2Mat(alignedFrame.first(RS2_STREAM_INFRARED));
 	rs2::depth_frame depth = alignedFrame.get_depth_frame();
 	
 	cv::setMouseCallback(WindowTitle, getCoordPixelS, this);
-	streamPointer(&infraredMat, &depth, intrin);
+	streamPointer(&infraredMat, &depth, &intrinsics);
 
 	cv::imshow(WindowTitle, infraredMat);
 }
 
-void app::stateDepth(rs2::pipeline* pipeline, int stream, rs2_intrinsics* intrin)
+void app::stateDepth()
 {
 	rs2::colorizer colorize;
 	//colorize.set_option(RS2_OPTION_COLOR_SCHEME, 2);
@@ -47,7 +77,7 @@ void app::stateDepth(rs2::pipeline* pipeline, int stream, rs2_intrinsics* intrin
 	if (stream & EnableInfrared)
 		rs2::align alignTo(RS2_STREAM_INFRARED);
 
-	rs2::frameset data = pipeline->wait_for_frames();
+	rs2::frameset data = pipeline.wait_for_frames();
 	rs2::frameset alignedFrame = alignTo.process(data);
 
 	rs2::depth_frame depth = alignedFrame.get_depth_frame();
@@ -55,12 +85,12 @@ void app::stateDepth(rs2::pipeline* pipeline, int stream, rs2_intrinsics* intrin
 	cv::Mat depthMat = funcFormat::frame2Mat(depthColor);
 
 	cv::setMouseCallback(WindowTitle, getCoordPixelS, this);
-	streamPointer(&depthMat, &depth, intrin);
+	streamPointer(&depthMat, &depth, &intrinsics);
 
 	cv::imshow(WindowTitle, depthMat);
 }
 
-void app::stateSwitch(int stream)
+void app::stateSwitch()
 {
 	char key = cv::waitKey(10);
 

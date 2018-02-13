@@ -23,19 +23,26 @@ class app
 public:
 	int state;
 	app();
-	void stateColor(rs2::pipeline* pipeline, rs2_intrinsics* intrin);
-	void stateInfrared(rs2::pipeline* pipeline, rs2_intrinsics* intrin);
-	void stateDepth(rs2::pipeline* pipeline, int stream, rs2_intrinsics* intrin);
+	void stateColor();
+	void stateInfrared();
+	void stateDepth();
 
-	void stateSwitch(int stream);
+	void stateSwitch();
 
 private:
-	static void getCoordPixelS(int event, int x, int y, int flags, void* userdata);
-	void getCoordPixel(int event, int x, int y, int flags);
-	void streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics* intrin);
+	rs2::pipeline pipeline;
+	rs2::config config;
+	rs2_intrinsics intrinsics;
 	
 	float pixel[2];
 	float point[3];
+	int stream;
+	
+	
+	void streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics* intrin);
+	
+	static void getCoordPixelS(int event, int x, int y, int flags, void* userdata);
+	void getCoordPixel(int event, int x, int y, int flags);
 };
 
 
