@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "app.h"
 
-app::app()
+app::app(std::string title)
 {
+	windowTitle = title;
+	
 	stream = detectDevice();
 	if (stream & EnableColor)
 	{
@@ -38,14 +40,20 @@ void app::process()
 {
 	std::clock_t begin = clock();
 	
-	if (state == APPSTATE_COLOR)
+	switch (state)
+	{
+	case APPSTATE_COLOR:
 		stateColor();
-	else if (state == APPSTATE_INFRARED)
+		break;
+	case APPSTATE_INFRARED:
 		stateInfrared();
-	else if (state == APPSTATE_DEPTH)
+		break;
+	case APPSTATE_DEPTH:
 		stateDepth();
+		break;
+	}
 
-	kbCommand();
+	eventKeyboard();
 	clock_t end = clock();
 	elapsed = double(end - begin) * 1000 / CLOCKS_PER_SEC;
 }
@@ -61,7 +69,7 @@ void app::stateColor()
 	depth = spat_filter.process(depth);
 	depth = temp_filter.process(depth);
 	
-	cv::setMouseCallback(windowTitle, getCoordPixelS, this);
+	cv::setMouseCallback(windowTitle, eventMouseS, this);
 	streamPointer(&colorMat, &depth, &intrinsics);
 	
 	std::ostringstream strs;
@@ -83,7 +91,7 @@ void app::stateInfrared()
 	depth = spat_filter.process(depth);
 	depth = temp_filter.process(depth);
 	
-	cv::setMouseCallback(windowTitle, getCoordPixelS, this);
+	cv::setMouseCallback(windowTitle, eventMouseS, this);
 	streamPointer(&infraredMat, &depth, &intrinsics);
 
 	std::ostringstream strs;
@@ -112,7 +120,7 @@ void app::stateDepth()
 	rs2::frame depthColor = colorize(depth);
 	cv::Mat depthMat = funcFormat::frame2Mat(depthColor);
 
-	cv::setMouseCallback(windowTitle, getCoordPixelS, this);
+	cv::setMouseCallback(windowTitle, eventMouseS, this);
 	streamPointer(&depthMat, &depth, &intrinsics);
 
 	std::ostringstream strs;
@@ -123,7 +131,7 @@ void app::stateDepth()
 	cv::imshow(windowTitle, depthMat);
 }
 
-void app::kbCommand()
+void app::eventKeyboard()
 {
 	char key = cv::waitKey(10);
 
@@ -165,23 +173,18 @@ void app::setResolution(int stream, int width, int height, int fps)
 	}
 }
 
-void app::setWindowTitle(std::string title)
-{
-	windowTitle = title;
-}
-
 void app::setVisualPreset(std::string preset)
 {
 	visualPreset = preset;
 }
 
-void app::getCoordPixelS(int event, int x, int y, int flags, void* userdata)
+void app::eventMouseS(int event, int x, int y, int flags, void* userdata)
 {
 	app* temp = reinterpret_cast<app*>(userdata);
-	temp->getCoordPixel(event, x, y, flags);
+	temp->eventMouse(event, x, y, flags);
 }
 
-void app::getCoordPixel(int event, int x, int y, int flags)
+void app::eventMouse(int event, int x, int y, int flags)
 {
 	if (event == CV_EVENT_MOUSEMOVE)
 	{

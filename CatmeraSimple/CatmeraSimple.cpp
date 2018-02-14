@@ -9,10 +9,9 @@
 
 int main(int argc, char * argv[]) try
 {
-	app catmera;
+	app catmera("Molly Catmera");
 	catmera.setResolution(RS2_STREAM_COLOR, 1280, 720, 30);
 	catmera.setResolution(RS2_STREAM_DEPTH, 1280, 720, 30);
-	catmera.setWindowTitle("Molly Catmera");
 	catmera.setVisualPreset("High Density");
 	
 	while (catmera.state)

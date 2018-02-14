@@ -25,17 +25,16 @@ class app
 {
 public:
 	int state;
-	app();
+	app(std::string title);
 	void process();
 
 	void stateColor();
 	void stateInfrared();
 	void stateDepth();
 
-	void kbCommand();
+	void eventKeyboard();
 
 	void setResolution(int stream, int width, int height, int fps);
-	void setWindowTitle(std::string title);
 	void setVisualPreset(std::string preset);
 
 private:
@@ -64,8 +63,8 @@ private:
 	void streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics* intrin);
 	void streamInfoer(cv::Mat* input, std::string text);
 	
-	static void getCoordPixelS(int event, int x, int y, int flags, void* userdata);
-	void getCoordPixel(int event, int x, int y, int flags);
+	static void eventMouseS(int event, int x, int y, int flags, void* userdata);
+	void eventMouse(int event, int x, int y, int flags);
 };
 
 

@@ -10,17 +10,15 @@
 
 static int detectDevice()
 {
-	int stream = 0;
-	
 	rs2::context ctx = rs2::context();
 	rs2::device_list devices = ctx.query_devices();
 	rs2::device selected_device;
 
 	if (devices.size() == 0)
 	{
-		std::cerr << "No device connected, please connect a RealSense device" << std::endl;
-		rs2::device_hub device_hub(ctx);
-		selected_device = device_hub.wait_for_device();
+		throw std::runtime_error("No device connected, please connect a RealSense device");
+		//rs2::device_hub device_hub(ctx);
+		//selected_device = device_hub.wait_for_device();
 	}
 	else
 	{
@@ -31,29 +29,17 @@ static int detectDevice()
 			if (device.supports(RS2_CAMERA_INFO_NAME))
 				name = device.get_info(RS2_CAMERA_INFO_NAME);
 			
-			std::cout << name << std::endl;
+			std::cout << "Detected device: " << name << std::endl;
 
 			if (name == "Intel RealSense 410")
-			{
-				stream = EnableInfrared | EnableDepth;
-				break;
-			}
+				return EnableInfrared | EnableDepth;
 			else if (name == "Intel RealSense 415")
-			{
-				stream = EnableColor | EnableDepth;
-				break;
-			}
+				return EnableColor | EnableDepth;
 			else if (name == "Intel RealSense 435")
-			{
-				stream = EnableColor | EnableDepth;
-				break;
-			}
+				return EnableColor | EnableDepth;
 		}
-
-		
+		throw std::runtime_error("No device connected, please connect a RealSense device");
 	}
-
-	return stream;
 }
 
 #endif // !CONFIGCAMERA_H
