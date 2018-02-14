@@ -12,5 +12,8 @@
 #define inforerFont		cv::FONT_HERSHEY_TRIPLEX
 #define inforerColor	cv::Scalar(255,255,0)
 
+#define scaleMin		0.1
+#define scaleMax		1
+
 #endif // !CONFIGOPENCV_H
 

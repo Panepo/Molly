@@ -32,8 +32,6 @@ app::app(std::string title)
 
 	auto profile = cfg.get_stream(RS2_STREAM_DEPTH).as<rs2::video_stream_profile>();
 	intrinsics = profile.get_intrinsics();
-
-	cv::namedWindow(windowTitle, cv::WINDOW_AUTOSIZE);
 }
 
 void app::process()
@@ -58,6 +56,10 @@ void app::process()
 	elapsed = double(end - begin) * 1000 / CLOCKS_PER_SEC;
 }
 
+// =================================================================================
+// Application states
+// =================================================================================
+
 void app::stateColor()
 {
 	rs2::align alignTo(RS2_STREAM_COLOR);
@@ -70,14 +72,8 @@ void app::stateColor()
 	depth = temp_filter.process(depth);
 	
 	cv::setMouseCallback(windowTitle, eventMouseS, this);
-	streamPointer(&colorMat, &depth, &intrinsics);
 	
-	std::ostringstream strs;
-	strs << elapsed;
-	std::string str = strs.str() + " ms (" + std::to_string((int)point[0]) + " " + std::to_string((int)point[1]) + " " + std::to_string((int)point[2]) + ")";
-	streamInfoer(&colorMat, str);
-
-	cv::imshow(windowTitle, colorMat);
+	streamPostProcess(&colorMat, &depth);
 }
 
 void app::stateInfrared()
@@ -92,14 +88,8 @@ void app::stateInfrared()
 	depth = temp_filter.process(depth);
 	
 	cv::setMouseCallback(windowTitle, eventMouseS, this);
-	streamPointer(&infraredMat, &depth, &intrinsics);
-
-	std::ostringstream strs;
-	strs << elapsed;
-	std::string str = strs.str() + " ms (" + std::to_string((int)point[0]) + " " + std::to_string((int)point[1]) + " " + std::to_string((int)point[2]) + ")";
-	streamInfoer(&infraredMat, str);
-
-	cv::imshow(windowTitle, infraredMat);
+	
+	streamPostProcess(&infraredMat, &depth);
 }
 
 void app::stateDepth()
@@ -121,15 +111,13 @@ void app::stateDepth()
 	cv::Mat depthMat = funcFormat::frame2Mat(depthColor);
 
 	cv::setMouseCallback(windowTitle, eventMouseS, this);
-	streamPointer(&depthMat, &depth, &intrinsics);
 
-	std::ostringstream strs;
-	strs << elapsed;
-	std::string str = strs.str() + " ms (" + std::to_string((int)point[0]) + " " + std::to_string((int)point[1]) + " " + std::to_string((int)point[2]) + ")";
-	streamInfoer(&depthMat, str);
-
-	cv::imshow(windowTitle, depthMat);
+	streamPostProcess(&depthMat, &depth);
 }
+
+// =================================================================================
+// Application events
+// =================================================================================
 
 void app::eventKeyboard()
 {
@@ -153,6 +141,42 @@ void app::eventKeyboard()
 	}
 }
 
+void app::eventMouseS(int event, int x, int y, int flags, void* userdata)
+{
+	app* temp = reinterpret_cast<app*>(userdata);
+	temp->eventMouse(event, x, y, flags);
+}
+
+void app::eventMouse(int event, int x, int y, int flags)
+{
+	float value;
+	
+	switch (event)
+	{
+	case CV_EVENT_MOUSEMOVE:
+		pixel[0] = (float)x;
+		pixel[1] = (float)y;
+		break;
+	case CV_EVENT_MOUSEWHEEL:
+		pixelZoom[0] = x;
+		pixelZoom[1] = y;
+
+		value = (float) cv::getMouseWheelDelta(flags);
+		//std::cout << value << std::endl;
+		if (value > 0 && scaleZoom < scaleMax)
+			scaleZoom += (float) 0.1;
+		else if (value < 0 && scaleZoom > scaleMin)
+			scaleZoom -= (float) 0.1;
+		
+	default:
+		break;
+	}
+}
+
+// =================================================================================
+// Application settings
+// =================================================================================
+
 void app::setResolution(int stream, int width, int height, int fps)
 {
 	switch (stream)
@@ -173,30 +197,45 @@ void app::setResolution(int stream, int width, int height, int fps)
 	}
 }
 
+
 void app::setVisualPreset(std::string preset)
 {
 	visualPreset = preset;
 }
 
-void app::eventMouseS(int event, int x, int y, int flags, void* userdata)
-{
-	app* temp = reinterpret_cast<app*>(userdata);
-	temp->eventMouse(event, x, y, flags);
-}
+// =================================================================================
+// Application private functions
+// =================================================================================
 
-void app::eventMouse(int event, int x, int y, int flags)
+void app::streamPostProcess(cv::Mat* input, rs2::depth_frame* depth)
 {
-	if (event == CV_EVENT_MOUSEMOVE)
-	{
-		pixel[0] = (float)x;
-		pixel[1] = (float)y;
-	}
+	outputMat = streamZoomer(input);
+	
+	streamPointer(&outputMat, depth, &intrinsics);
+
+	std::ostringstream strs;
+	strs << elapsed;
+	std::string str = strs.str() + " ms (" + std::to_string((int)point[0]) + " " + std::to_string((int)point[1]) + " " + std::to_string((int)point[2]) + ")";
+	streamInfoer(&outputMat, str);
 }
 
 void app::streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics* intrin)
 {
-	auto depthPixel = depth->get_distance((int)pixel[0], (int)pixel[1]);
-	rs2_deproject_pixel_to_point(point, intrin, pixel, depthPixel * 1000);
+	float pos[2];
+	
+	if (scaleZoom == 1)
+	{
+		pos[0] = pixel[0];
+		pos[1] = pixel[1];
+	}
+	else
+	{
+		pos[0] = pixel[0] * scaleZoom + roiZoom[0];
+		pos[1] = pixel[1] * scaleZoom + roiZoom[1];
+	}
+	
+	auto depthPixel = depth->get_distance((int)pos[0], (int)pos[1]);
+	rs2_deproject_pixel_to_point(point, intrin, pos, depthPixel * 1000);
 
 	cv::circle(*input, cv::Point((int)pixel[0], (int)pixel[1]), pointerSize, pointerColor, -1);
 	std::string text = std::to_string((int)point[0]) + " " + std::to_string((int)point[1]) + " " + std::to_string((int)point[2]);
@@ -211,3 +250,39 @@ void app::streamInfoer(cv::Mat* input, std::string text)
 	cv::copyMakeBorder(*input, *input, 0, 40, 0, 0, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
 	cv::putText(*input, text, cv::Point(10, size.height + 30), inforerFont, 1, inforerColor, 1, cv::LINE_AA);
 }
+
+cv::Mat app::streamZoomer(cv::Mat* input)
+{
+	if (scaleZoom == 1)
+	{
+		cv::Mat output = input->clone();
+		return output;
+	}
+	else
+	{
+		cv::Size size = input->size();
+		int scaledWidth = (int)(size.width * scaleZoom);
+		int scaledHeight = (int)(size.height * scaleZoom);
+		roiZoom[0] = pixelZoom[0] - (scaledWidth / 2);
+		roiZoom[1] = pixelZoom[1] - (scaledHeight / 2);
+		
+		if ((pixelZoom[0] + (scaledWidth / 2)) > size.width)
+			roiZoom[0] = size.width - scaledWidth;
+
+		if ((pixelZoom[1] + (scaledHeight / 2)) > size.height)
+			roiZoom[1] = size.height - scaledHeight;
+
+		if ((pixelZoom[0] - (scaledWidth / 2)) < 0)
+			roiZoom[0] = 0;
+
+		if ((pixelZoom[1] - (scaledHeight / 2)) < 0)
+			roiZoom[1] = 0;
+
+		cv::Rect roi = cv::Rect(roiZoom[0], roiZoom[1], scaledWidth, scaledHeight);
+		cv::Mat output = (*input)(roi);
+		cv::resize(output, output, size, 0, 0, CV_INTER_AREA);
+
+		return output;
+	}
+}
+	
