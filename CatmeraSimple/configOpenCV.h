@@ -3,17 +3,21 @@
 #define CONFIGOPENCV_H
 
 #define pointerSize		5
-#define pointerColor	cv::Scalar(255, 255, 255)
+#define pointerColor	cv::Scalar(255, 255, 255)	// white
 #define pointerFontA	cv::FONT_HERSHEY_DUPLEX
 #define pointerFontB	cv::FONT_HERSHEY_SIMPLEX
-#define pointerColorFA	cv::Scalar(0, 0, 0)
-#define pointerColorFB	cv::Scalar(0, 255,255)
+#define pointerColorFA	cv::Scalar(0, 0, 0)			// black
+#define pointerColorFB	cv::Scalar(0, 255,255)		// yellow
 
 #define inforerFont		cv::FONT_HERSHEY_TRIPLEX
-#define inforerColor	cv::Scalar(255,255,0)
+#define inforerColor	cv::Scalar(255,255,0)		// teal
 
-#define scaleMin		0.1
-#define scaleMax		1
+#define zoomerScaleMin	0.1
+#define zoomerScaleMax	1
+#define zoomerLineSize	5
+#define zoomerLineColor cv::Scalar(0, 255,255)		// yellow
+#define zoomerMapSize	3
+#define zoomerMapColor  cv::Scalar(255, 255, 255)	// white
 
 #endif // !CONFIGOPENCV_H
 

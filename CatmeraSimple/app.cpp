@@ -37,6 +37,7 @@ app::app(std::string title)
 void app::process()
 {
 	std::clock_t begin = clock();
+	cv::setMouseCallback(windowTitle, eventMouseS, this);
 	
 	switch (state)
 	{
@@ -71,8 +72,6 @@ void app::stateColor()
 	depth = spat_filter.process(depth);
 	depth = temp_filter.process(depth);
 	
-	cv::setMouseCallback(windowTitle, eventMouseS, this);
-	
 	streamPostProcess(&colorMat, &depth);
 }
 
@@ -86,8 +85,6 @@ void app::stateInfrared()
 	rs2::depth_frame depth = alignedFrame.get_depth_frame();
 	depth = spat_filter.process(depth);
 	depth = temp_filter.process(depth);
-	
-	cv::setMouseCallback(windowTitle, eventMouseS, this);
 	
 	streamPostProcess(&infraredMat, &depth);
 }
@@ -109,8 +106,6 @@ void app::stateDepth()
 	depth = temp_filter.process(depth);
 	rs2::frame depthColor = colorize(depth);
 	cv::Mat depthMat = funcFormat::frame2Mat(depthColor);
-
-	cv::setMouseCallback(windowTitle, eventMouseS, this);
 
 	streamPostProcess(&depthMat, &depth);
 }
@@ -163,9 +158,9 @@ void app::eventMouse(int event, int x, int y, int flags)
 
 		value = (float) cv::getMouseWheelDelta(flags);
 		//std::cout << value << std::endl;
-		if (value > 0 && scaleZoom < scaleMax)
+		if (value > 0 && scaleZoom < zoomerScaleMax)
 			scaleZoom += (float) 0.1;
-		else if (value < 0 && scaleZoom > scaleMin)
+		else if (value < 0 && scaleZoom > zoomerScaleMin)
 			scaleZoom -= (float) 0.1;
 		
 	default:
@@ -260,6 +255,10 @@ cv::Mat app::streamZoomer(cv::Mat* input)
 	}
 	else
 	{
+		// generate zoom-in image
+		pixelZoom[0] = pixelZoom[0] * scaleZoom + roiZoom[0];
+		pixelZoom[1] = pixelZoom[1] * scaleZoom + roiZoom[1];
+
 		cv::Size size = input->size();
 		int scaledWidth = (int)(size.width * scaleZoom);
 		int scaledHeight = (int)(size.height * scaleZoom);
@@ -281,6 +280,14 @@ cv::Mat app::streamZoomer(cv::Mat* input)
 		cv::Rect roi = cv::Rect(roiZoom[0], roiZoom[1], scaledWidth, scaledHeight);
 		cv::Mat output = (*input)(roi);
 		cv::resize(output, output, size, 0, 0, CV_INTER_AREA);
+
+		// generate mini-map
+		cv::Mat outMap = input->clone();
+		cv::rectangle(outMap, roi, zoomerLineColor, zoomerLineSize);
+		cv::Size sizeMap = cv::Size((int)(size.width / 8), (int)(size.height / 8));
+		cv::resize(outMap, outMap, sizeMap, 0, 0, CV_INTER_AREA);
+		cv::copyMakeBorder(outMap, outMap, zoomerMapSize, zoomerMapSize, zoomerMapSize, zoomerMapSize, cv::BORDER_CONSTANT, zoomerMapColor);
+		outMap.copyTo(output(cv::Rect(size.width - sizeMap.width - 10, size.height - sizeMap.height - 10, outMap.cols, outMap.rows)));
 
 		return output;
 	}
