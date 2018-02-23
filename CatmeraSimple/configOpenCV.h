@@ -19,5 +19,8 @@
 #define zoomerMapSize	3
 #define zoomerMapColor  cv::Scalar(255, 255, 255)	// white
 
+#define measureSize		10
+#define measureColor	cv::Scalar(0, 255,0)		// green
+
 #endif // !CONFIGOPENCV_H
 

@@ -6,7 +6,6 @@
 
 #define EnableColor		1
 #define EnableInfrared	2
-#define EnableDepth		4
 
 static int detectDevice()
 {
@@ -32,11 +31,11 @@ static int detectDevice()
 			std::cout << "Detected device: " << name << std::endl;
 
 			if (name == "Intel RealSense 410")
-				return EnableInfrared | EnableDepth;
+				return EnableInfrared;
 			else if (name == "Intel RealSense 415")
-				return EnableColor | EnableDepth;
+				return EnableColor;
 			else if (name == "Intel RealSense 435")
-				return EnableColor | EnableDepth;
+				return EnableColor;
 		}
 		throw std::runtime_error("No device connected, please connect a RealSense device");
 	}

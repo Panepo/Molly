@@ -11,14 +11,17 @@ int main(int argc, char * argv[]) try
 {
 	std::string appTitle = "Molly Catmera";
 	app catmera(appTitle);
+	
 	catmera.setResolution(RS2_STREAM_COLOR, 1280, 720, 30);
 	catmera.setResolution(RS2_STREAM_DEPTH, 1280, 720, 30);
 	catmera.setVisualPreset("High Density");
-	cv::namedWindow(appTitle, cv::WINDOW_AUTOSIZE);
+	catmera.cameraInitial();
 	
+	cv::namedWindow(appTitle, cv::WINDOW_AUTOSIZE);
+
 	while (catmera.state)
 	{
-		catmera.process();
+		catmera.cameraProcess();
 		cv::imshow(appTitle, catmera.outputMat);
 	}
 
