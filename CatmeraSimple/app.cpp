@@ -4,10 +4,6 @@
 app::app(std::string title)
 {
 	windowTitle = title;
-	pixelA[0] = (float) ColorWidth * 2 / 5;
-	pixelA[1] = (float) ColorHeight / 2;
-	pixelB[0] = (float) ColorWidth * 3 / 5;
-	pixelB[1] = (float) ColorHeight / 2;
 }
 
 void app::cameraInitial()
@@ -43,6 +39,11 @@ void app::cameraInitial()
 	intrinsics = profile.get_intrinsics();
 
 	filterSpat.set_option(RS2_OPTION_HOLES_FILL, 5);
+
+	pixelA[0] = (float)ColorWidth * 2 / 5;
+	pixelA[1] = (float)ColorHeight / 2;
+	pixelB[0] = (float)ColorWidth * 3 / 5;
+	pixelB[1] = (float)ColorHeight / 2;
 }
 
 void app::cameraProcess()
@@ -129,9 +130,12 @@ void app::stateDepth()
 
 void app::stateMeasure()
 {
+	rs2::colorizer colorize;
+	
 	rs2::align alignTo(RS2_STREAM_COLOR);
 	if (stream & EnableInfrared)
 		rs2::align alignTo(RS2_STREAM_INFRARED);
+	
 	rs2::frameset data = pipeline.wait_for_frames();
 	rs2::frameset alignedFrame = alignTo.process(data);
 
@@ -139,8 +143,11 @@ void app::stateMeasure()
 	rs2::depth_frame depth = alignedFrame.get_depth_frame();
 	depth = filterSpat.process(depth);
 	depth = filterTemp.process(depth);
+	//rs2::frame depthColor = colorize(depth);
+	//cv::Mat depthMat = funcFormat::frame2Mat(depthColor);
 
 	measurePostProcess(&colorMat, &depth);
+	//measurePostProcess(&depthMat, &depth);
 }
 
 // =================================================================================
@@ -268,6 +275,7 @@ void app::measurePostProcess(cv::Mat * input, rs2::depth_frame * depth)
 	outputMat = streamZoomer(input);
 
 	measurePointer(&outputMat, depth, &intrinsics);
+	measureDrawer(&outputMat, depth, &intrinsics);
 
 	std::ostringstream strs;
 	strs << elapsed;
@@ -294,7 +302,7 @@ void app::streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics*
 		pos[1] = pixel[1] * scaleZoom + roiZoom[1];
 	}
 	
-	auto depthPixel = depth->get_distance((int)pos[0], (int)pos[1]);
+	float depthPixel = depth->get_distance((int)pos[0], (int)pos[1]);
 	rs2_deproject_pixel_to_point(point, intrin, pos, depthPixel * 1000);
 
 	cv::circle(*input, cv::Point((int)pixel[0], (int)pixel[1]), pointerSize, pointerColor, -1);
@@ -365,6 +373,7 @@ cv::Mat app::streamZoomer(cv::Mat* input)
 
 void app::measurePointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin)
 {
+	cv::circle(*input, cv::Point((int)pixel[0], (int)pixel[1]), pointerSize, pointerColor, -1);
 	cv::circle(*input, cv::Point((int)pixelA[0], (int)pixelA[1]), measureSize, measureColor, 2);
 	cv::circle(*input, cv::Point((int)pixelB[0], (int)pixelB[1]), measureSize, measureColor, 2);
 	cv::line(*input, cv::Point((int)pixelA[0], (int)pixelA[1]), 
@@ -390,14 +399,82 @@ float app::measureDist(const rs2_intrinsics* intrin, const rs2::depth_frame* dep
 	float pointA[3] = { 0, 0, 0 };
 	float pointB[3] = { 0, 0, 0 };
 
-	auto distA = depth->get_distance((int)pixelA[0], (int)pixelA[1]);
-	auto distB = depth->get_distance((int)pixelB[0], (int)pixelB[1]);
+	float distA = depth->get_distance((int)pixelA[0], (int)pixelA[1]);
+	float distB = depth->get_distance((int)pixelB[0], (int)pixelB[1]);
 	
 	rs2_deproject_pixel_to_point(pointA, intrin, pixelA, distA);
 	rs2_deproject_pixel_to_point(pointB, intrin, pixelB, distB);
 
 	return floor(sqrt(pow(pointA[0] - pointB[0], 2) +
 		pow(pointA[1] - pointB[1], 2) +
-		pow(pointA[2] - pointB[2], 2)) * 100);
+		pow(pointA[2] - pointB[2], 2)) * 10000) / 100;
 }
-	
+
+void app::measureDrawer(cv::Mat * input, const rs2::depth_frame * depth, const rs2_intrinsics * intrin)
+{
+	float xdiff = abs(pixelA[0] - pixelB[0]);
+	float ydiff = abs(pixelA[1] - pixelB[1]);
+	int posX = 0, posY = 0;
+	float dist = 0, direct = 1;
+	std::vector<float> output;
+
+	if (xdiff < ydiff)
+	{
+		if (pixelA[1] - pixelB[1] < 0)
+			direct = -1;
+
+		for (float i : boost::irange<float>(0, ydiff))
+		{
+			posX = (int)floor(pixelB[0] + direct * i * xdiff / ydiff);
+			posY = (int)floor(pixelB[1] + direct * i);
+			dist = depth->get_distance(posX, posY);
+			output.push_back(dist);
+		}
+	}
+	else
+	{
+		if (pixelA[0] - pixelB[0] < 0)
+			direct = -1;
+
+		for (float i : boost::irange<float>(0, xdiff))
+		{
+			posX = (int)floor(pixelB[0] + direct * i);
+			posY = (int)floor(pixelB[1] + direct * i * ydiff / xdiff);
+			dist = depth->get_distance(posX, posY);
+			output.push_back(dist);
+		}
+	}
+
+	if (output.size() > 0)
+	{
+		auto outMinMax = std::minmax_element(output.begin(), output.end());
+
+		float parm = 620 / (*outMinMax.second - *outMinMax.first);
+		
+		cv::Mat minimap = cv::Mat(720, (int)output.size(), CV_8UC3, sectionColor);
+
+		for (int i : boost::irange<int>(0, (int)output.size()))
+		{
+			cv::line(minimap, cv::Point(i, 0),
+				cv::Point(i, (int)(720 - (output[i] - *outMinMax.first) * parm)), cv::Scalar(0, 0, 0), 1);
+		}
+
+		if (pixelA[0] > pixelB[0])
+		{
+			cv::Mat minimapFlip;
+			cv::flip(minimap, minimapFlip, 1);
+			minimap = minimapFlip.clone();
+		}
+		
+		cv::Size size = input->size();
+		cv::Size sizeMap = cv::Size((int)(size.width / 8), (int)(size.height / 8));
+		cv::resize(minimap, minimap, sizeMap, 0, 0, CV_INTER_LINEAR);
+		cv::copyMakeBorder(minimap, minimap, zoomerMapSize, zoomerMapSize, zoomerMapSize,
+		zoomerMapSize, cv::BORDER_CONSTANT, zoomerMapColor);
+
+		cv::Mat outMat = input->clone();
+		minimap.copyTo(outMat(cv::Rect(size.width - sizeMap.width - 10, size.height - sizeMap.height - 10,
+		minimap.cols, minimap.rows)));
+		*input = outMat.clone();
+	}
+}

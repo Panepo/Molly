@@ -22,5 +22,7 @@
 #define measureSize		10
 #define measureColor	cv::Scalar(0, 255,0)		// green
 
+#define sectionColor	cv::Scalar(0, 255,255)		// yellow
+
 #endif // !CONFIGOPENCV_H
 

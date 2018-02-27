@@ -6,8 +6,15 @@
 #include <opencv2\opencv.hpp>
 #include <librealsense2\rsutil.h>
 
+#include <boost/range/adaptor/reversed.hpp>
+#include <boost/range/irange.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/iterator_range.hpp>
+
 #include <ctime>
 #include <sstream>
+#include <vector>
 
 #include "configCamera.h"
 #include "configOpenCV.h"
@@ -89,6 +96,7 @@ private:
 	// measure pointer and related parameters
 	void measurePointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	float measureDist(const rs2_intrinsics* intr, const rs2::depth_frame* frame, float pixelA[3], float pixelB[3]);
+	void measureDrawer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	float pixelA[2] = { 0, 0 };
 	float pixelB[2] = { 0, 0 };
 	std::string distText;
