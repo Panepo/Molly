@@ -415,7 +415,7 @@ void app::measureDrawer(cv::Mat * input, const rs2::depth_frame * depth, const r
 	float xdiff = abs(pixelA[0] - pixelB[0]);
 	float ydiff = abs(pixelA[1] - pixelB[1]);
 	int posX = 0, posY = 0;
-	float dist = 0, direct = 1;
+	float dist = 0, direct = 1, parm = 1;
 	std::vector<float> output;
 
 	if (xdiff < ydiff)
@@ -449,28 +449,34 @@ void app::measureDrawer(cv::Mat * input, const rs2::depth_frame * depth, const r
 	{
 		auto outMinMax = std::minmax_element(output.begin(), output.end());
 
-		float parm = 620 / (*outMinMax.second - *outMinMax.first);
+		if ((float)(*outMinMax.second - *outMinMax.first) < 0.2)
+			parm = sectionHeight / 0.2;
+		else
+			parm = sectionHeight / (*outMinMax.second - *outMinMax.first);
 		
-		cv::Mat minimap = cv::Mat(720, (int)output.size(), CV_8UC3, sectionColor);
+		cv::Mat minimap = cv::Mat(sectionHeight, (int)output.size(), CV_8UC3, sectionColor);
 
 		for (int i : boost::irange<int>(0, (int)output.size()))
 		{
 			cv::line(minimap, cv::Point(i, 0),
-				cv::Point(i, (int)(720 - (output[i] - *outMinMax.first) * parm)), cv::Scalar(0, 0, 0), 1);
+				cv::Point(i, (int)((output[i] - *outMinMax.first) * parm)), sectionBGColor, 1);
 		}
 
-		if (pixelA[0] > pixelB[0])
+		if (pixelA[0] < pixelB[0])
 		{
 			cv::Mat minimapFlip;
 			cv::flip(minimap, minimapFlip, 1);
 			minimap = minimapFlip.clone();
 		}
+
+		cv::copyMakeBorder(minimap, minimap, sectionPreSize, 0, 0, 0, cv::BORDER_CONSTANT, sectionBGColor);
+		cv::copyMakeBorder(minimap, minimap, 0, sectionPreSize, 0, 0, cv::BORDER_CONSTANT, sectionColor);
 		
 		cv::Size size = input->size();
 		cv::Size sizeMap = cv::Size((int)(size.width / 8), (int)(size.height / 8));
 		cv::resize(minimap, minimap, sizeMap, 0, 0, CV_INTER_LINEAR);
-		cv::copyMakeBorder(minimap, minimap, zoomerMapSize, zoomerMapSize, zoomerMapSize,
-		zoomerMapSize, cv::BORDER_CONSTANT, zoomerMapColor);
+		cv::copyMakeBorder(minimap, minimap, sectionMapSize, sectionMapSize, sectionMapSize,
+			sectionMapSize, cv::BORDER_CONSTANT, sectionMapColor);
 
 		cv::Mat outMat = input->clone();
 		minimap.copyTo(outMat(cv::Rect(size.width - sizeMap.width - 10, size.height - sizeMap.height - 10,
