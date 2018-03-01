@@ -13,6 +13,7 @@ void app::cameraInitial()
 	{
 		config.enable_stream(RS2_STREAM_COLOR, ColorWidth, ColorHeight, RS2_FORMAT_BGR8, ColorFPS);
 		state = APPSTATE_COLOR;
+		//state = APPSTATE_MEASURE;
 	}
 	else if (stream & EnableInfrared)
 	{
@@ -40,9 +41,9 @@ void app::cameraInitial()
 
 	filterSpat.set_option(RS2_OPTION_HOLES_FILL, 5);
 
-	pixelA[0] = (float)ColorWidth * 2 / 5;
+	pixelA[0] = (float)ColorWidth * 3 / 5;
 	pixelA[1] = (float)ColorHeight / 2;
-	pixelB[0] = (float)ColorWidth * 3 / 5;
+	pixelB[0] = (float)ColorWidth * 2 / 5;
 	pixelB[1] = (float)ColorHeight / 2;
 }
 
@@ -130,24 +131,30 @@ void app::stateDepth()
 
 void app::stateMeasure()
 {
-	rs2::colorizer colorize;
-	
-	rs2::align alignTo(RS2_STREAM_COLOR);
-	if (stream & EnableInfrared)
-		rs2::align alignTo(RS2_STREAM_INFRARED);
-	
 	rs2::frameset data = pipeline.wait_for_frames();
-	rs2::frameset alignedFrame = alignTo.process(data);
+	
+	if (stream & EnableColor)
+	{
+		rs2::align alignTo(RS2_STREAM_COLOR);
+		rs2::frameset alignedFrame = alignTo.process(data);
 
-	cv::Mat colorMat = funcFormat::frame2Mat(alignedFrame.get_color_frame());
-	rs2::depth_frame depth = alignedFrame.get_depth_frame();
-	depth = filterSpat.process(depth);
-	depth = filterTemp.process(depth);
-	//rs2::frame depthColor = colorize(depth);
-	//cv::Mat depthMat = funcFormat::frame2Mat(depthColor);
+		cv::Mat colorMat = funcFormat::frame2Mat(alignedFrame.get_color_frame());
+		rs2::depth_frame depth = alignedFrame.get_depth_frame();
+		depth = filterSpat.process(depth);
+		depth = filterTemp.process(depth);
+		measurePostProcess(&colorMat, &depth);
+	}
+	else
+	{
+		rs2::align alignTo(RS2_STREAM_INFRARED);
+		rs2::frameset alignedFrame = alignTo.process(data);
 
-	measurePostProcess(&colorMat, &depth);
-	//measurePostProcess(&depthMat, &depth);
+		cv::Mat infraredMat = funcFormat::frame2Mat(alignedFrame.first(RS2_STREAM_INFRARED));
+		rs2::depth_frame depth = alignedFrame.get_depth_frame();
+		depth = filterSpat.process(depth);
+		depth = filterTemp.process(depth);
+		measurePostProcess(&infraredMat, &depth);
+	}
 }
 
 // =================================================================================
@@ -196,27 +203,117 @@ void app::eventMouse(int event, int x, int y, int flags)
 	switch (event)
 	{
 	case CV_EVENT_MOUSEMOVE:
-		pixel[0] = (float)x;
-		pixel[1] = (float)y;
+		switch (state)
+		{
+		case APPSTATE_COLOR:
+			if (x >= 0 && x <= ColorWidth)
+				pixel[0] = (float)x;
+			if (y >= 0 && y<= ColorHeight)
+				pixel[1] = (float)y;
+		case APPSTATE_INFRARED:
+			if (x >= 0 && x <= DepthWidth)
+				pixel[0] = (float)x;
+			if (y >= 0 && y <= DepthHeight)
+				pixel[1] = (float)y;
+		case APPSTATE_DEPTH:
+		case APPSTATE_MEASURE:
+			if (stream & EnableColor)
+			{
+				if (x >= 0 && x <= ColorWidth)
+					pixel[0] = (float)x;
+				if (y >= 0 && y <= ColorHeight)
+					pixel[1] = (float)y;
+			}
+			else if (stream & EnableInfrared)
+			{
+				if (x >= 0 && x <= DepthWidth)
+					pixel[0] = (float)x;
+				if (y >= 0 && y <= DepthHeight)
+					pixel[1] = (float)y;
+			}
+			break;
+		default:
+			break;
+		}
 		break;
 	case CV_EVENT_LBUTTONDOWN:
-		pixelA[0] = (float)x;
-		pixelA[1] = (float)y;
+		switch (state)
+		{
+		case APPSTATE_MEASURE:
+			if (stream & EnableColor)
+			{
+				if (x >= 0 && x <= ColorWidth)
+					pixelA[0] = (float)x;
+				else
+					pixelA[0] = (float)ColorWidth - 1;
+				if (y >= 0 && y <= ColorHeight)
+					pixelA[1] = (float)y;
+				else
+					pixelA[1] = (float)ColorHeight - 1;
+			}
+			else if (stream & EnableInfrared)
+			{
+				if (x >= 0 && x <= DepthWidth)
+					pixelA[0] = (float)x;
+				else
+					pixelA[0] = (float)DepthWidth - 1;
+				if (y >= 0 && y <= DepthHeight)
+					pixelA[1] = (float)y;
+				else
+					pixelA[1] = (float)DepthHeight - 1;
+			}
+			break;
+		}
 		break;
 	case CV_EVENT_RBUTTONDOWN:
-		pixelB[0] = (float)x;
-		pixelB[1] = (float)y;
+		switch (state)
+		{
+		case APPSTATE_MEASURE:
+			if (stream & EnableColor)
+			{
+				if (x >= 0 && x <= ColorWidth)
+					pixelB[0] = (float)x;
+				else
+					pixelB[0] = (float)ColorWidth - 1;
+				if (y >= 0 && y <= ColorHeight)
+					pixelB[1] = (float)y;
+				else
+					pixelB[1] = (float)ColorHeight - 1;
+			}
+			else if (stream & EnableInfrared)
+			{
+				if (x >= 0 && x <= DepthWidth)
+					pixelB[0] = (float)x;
+				else
+					pixelB[0] = (float)DepthWidth - 1;
+				if (y >= 0 && y <= DepthHeight)
+					pixelB[1] = (float)y;
+				else
+					pixelB[1] = (float)DepthHeight - 1;
+			}
+			break;
+		}
 		break;
 	case CV_EVENT_MOUSEWHEEL:
-		pixelZoom[0] = x;
-		pixelZoom[1] = y;
+		switch (state)
+		{
+		case APPSTATE_COLOR:
+		case APPSTATE_INFRARED:
+		case APPSTATE_DEPTH:
+		case APPSTATE_MEASURE:
+			pixelZoom[0] = x;
+			pixelZoom[1] = y;
 
-		value = (float) cv::getMouseWheelDelta(flags);
-		//std::cout << value << std::endl;
-		if (value > 0 && scaleZoom < zoomerScaleMax)
-			scaleZoom += (float) 0.1;
-		else if (value < 0 && scaleZoom > zoomerScaleMin)
-			scaleZoom -= (float) 0.1;
+			value = (float)cv::getMouseWheelDelta(flags);
+			//std::cout << value << std::endl;
+			if (value > 0 && scaleZoom < zoomerScaleMax)
+				scaleZoom += (float) 0.1;
+			else if (value < 0 && scaleZoom > zoomerScaleMin)
+				scaleZoom -= (float) 0.1;
+			break;
+		default:
+			break;
+		}
 		
 	default:
 		break;
@@ -364,7 +461,7 @@ cv::Mat app::streamZoomer(cv::Mat* input)
 		cv::resize(outMap, outMap, sizeMap, 0, 0, CV_INTER_AREA);
 		cv::copyMakeBorder(outMap, outMap, zoomerMapSize, zoomerMapSize, zoomerMapSize, 
 			zoomerMapSize, cv::BORDER_CONSTANT, zoomerMapColor);
-		outMap.copyTo(output(cv::Rect(size.width - sizeMap.width - 10, size.height - sizeMap.height - 10, 
+		outMap.copyTo(output(cv::Rect(10, size.height - sizeMap.height - 10, 
 			outMap.cols, outMap.rows)));
 
 		return output;
@@ -373,13 +470,30 @@ cv::Mat app::streamZoomer(cv::Mat* input)
 
 void app::measurePointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin)
 {
+	float posA[2], posB[2];
+
+	if (scaleZoom == 1)
+	{
+		posA[0] = pixelA[0];
+		posA[1] = pixelA[1];
+		posB[0] = pixelB[0];
+		posB[1] = pixelB[1];
+	}
+	else
+	{
+		posA[0] = pixelA[0] * scaleZoom + roiZoom[0];
+		posA[1] = pixelA[1] * scaleZoom + roiZoom[1];
+		posB[0] = pixelB[0] * scaleZoom + roiZoom[0];
+		posB[1] = pixelB[1] * scaleZoom + roiZoom[1];
+	}
+
 	cv::circle(*input, cv::Point((int)pixel[0], (int)pixel[1]), pointerSize, pointerColor, -1);
 	cv::circle(*input, cv::Point((int)pixelA[0], (int)pixelA[1]), measureSize, measureColor, 2);
 	cv::circle(*input, cv::Point((int)pixelB[0], (int)pixelB[1]), measureSize, measureColor, 2);
 	cv::line(*input, cv::Point((int)pixelA[0], (int)pixelA[1]), 
 		cv::Point((int)pixelB[0], (int)pixelB[1]), measureColor, 2);
 
-	float dist = measureDist(intrin, depth, pixelA, pixelB);
+	float dist = measureDist(intrin, depth, posA, posB);
 
 	std::ostringstream strs;
 	strs << dist;
@@ -412,34 +526,53 @@ float app::measureDist(const rs2_intrinsics* intrin, const rs2::depth_frame* dep
 
 void app::measureDrawer(cv::Mat * input, const rs2::depth_frame * depth, const rs2_intrinsics * intrin)
 {
-	float xdiff = abs(pixelA[0] - pixelB[0]);
-	float ydiff = abs(pixelA[1] - pixelB[1]);
+	float posA[2], posB[2];
+
+	if (scaleZoom == 1)
+	{
+		posA[0] = pixelA[0];
+		posA[1] = pixelA[1];
+		posB[0] = pixelB[0];
+		posB[1] = pixelB[1];
+	}
+	else
+	{
+		posA[0] = pixelA[0] * scaleZoom + roiZoom[0];
+		posA[1] = pixelA[1] * scaleZoom + roiZoom[1];
+		posB[0] = pixelB[0] * scaleZoom + roiZoom[0];
+		posB[1] = pixelB[1] * scaleZoom + roiZoom[1];
+	}
+	
+	float xdiff = abs(posA[0] - posB[0]);
+	float ydiff = abs(posA[1] - posB[1]);
 	int posX = 0, posY = 0;
-	float dist = 0, direct = 1, parm = 1;
+	float dist = 0, parm = 1;
+	float directX = 1, directY = 1;
 	std::vector<float> output;
+
+	// get depth data of the route
+	if (posA[0] - posB[0] < 0)
+		directX = -1;
+	
+	if (posA[1] - posB[1] < 0)
+		directY = -1;
 
 	if (xdiff < ydiff)
 	{
-		if (pixelA[1] - pixelB[1] < 0)
-			direct = -1;
-
-		for (float i : boost::irange<float>(0, ydiff))
+		for (int i : boost::irange<int>(0, (int)ydiff))
 		{
-			posX = (int)floor(pixelB[0] + direct * i * xdiff / ydiff);
-			posY = (int)floor(pixelB[1] + direct * i);
+			posX = (int)floor(posB[0] + directX * (float)i * xdiff / ydiff);
+			posY = (int)floor(posB[1] + directY * (float)i);
 			dist = depth->get_distance(posX, posY);
 			output.push_back(dist);
 		}
 	}
 	else
 	{
-		if (pixelA[0] - pixelB[0] < 0)
-			direct = -1;
-
-		for (float i : boost::irange<float>(0, xdiff))
+		for (int i : boost::irange<int>(0, (int)xdiff))
 		{
-			posX = (int)floor(pixelB[0] + direct * i);
-			posY = (int)floor(pixelB[1] + direct * i * ydiff / xdiff);
+			posX = (int)floor(posB[0] + directX * (float)i);
+			posY = (int)floor(posB[1] + directY * (float)i * ydiff / xdiff);
 			dist = depth->get_distance(posX, posY);
 			output.push_back(dist);
 		}
@@ -447,31 +580,35 @@ void app::measureDrawer(cv::Mat * input, const rs2::depth_frame * depth, const r
 
 	if (output.size() > 0)
 	{
+		// get min and max value to calculate drawing parameter
 		auto outMinMax = std::minmax_element(output.begin(), output.end());
 
 		if ((float)(*outMinMax.second - *outMinMax.first) < 0.2)
-			parm = sectionHeight / 0.2;
+			parm = sectionHeight * 5;
 		else
 			parm = sectionHeight / (*outMinMax.second - *outMinMax.first);
 		
+		// draw sectional drawing
 		cv::Mat minimap = cv::Mat(sectionHeight, (int)output.size(), CV_8UC3, sectionColor);
-
 		for (int i : boost::irange<int>(0, (int)output.size()))
 		{
 			cv::line(minimap, cv::Point(i, 0),
 				cv::Point(i, (int)((output[i] - *outMinMax.first) * parm)), sectionBGColor, 1);
 		}
 
-		if (pixelA[0] < pixelB[0])
+		// flip image if inverse
+		if (posA[0] < posB[0])
 		{
 			cv::Mat minimapFlip;
 			cv::flip(minimap, minimapFlip, 1);
 			minimap = minimapFlip.clone();
 		}
 
+		// generate preserve border
 		cv::copyMakeBorder(minimap, minimap, sectionPreSize, 0, 0, 0, cv::BORDER_CONSTANT, sectionBGColor);
 		cv::copyMakeBorder(minimap, minimap, 0, sectionPreSize, 0, 0, cv::BORDER_CONSTANT, sectionColor);
 		
+		// generate minimap
 		cv::Size size = input->size();
 		cv::Size sizeMap = cv::Size((int)(size.width / 8), (int)(size.height / 8));
 		cv::resize(minimap, minimap, sizeMap, 0, 0, CV_INTER_LINEAR);

@@ -93,7 +93,7 @@ private:
 	int roiZoom[2] = { 0, 0 };
 	float scaleZoom = 1;
 
-	// measure pointer and related parameters
+	// measure pointer, drawer and related parameters
 	void measurePointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	float measureDist(const rs2_intrinsics* intr, const rs2::depth_frame* frame, float pixelA[3], float pixelB[3]);
 	void measureDrawer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
