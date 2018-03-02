@@ -13,7 +13,7 @@ void app::cameraInitial()
 	{
 		config.enable_stream(RS2_STREAM_COLOR, ColorWidth, ColorHeight, RS2_FORMAT_BGR8, ColorFPS);
 		state = APPSTATE_COLOR;
-		//state = APPSTATE_MEASURE;
+		//state = APPSTATE_RULER;
 	}
 	else if (stream & EnableInfrared)
 	{
@@ -66,10 +66,10 @@ void app::cameraProcess()
 	case APPSTATE_DEPTH:
 		stateDepth();
 		break;
-	case APPSTATE_MEASURE:
+	case APPSTATE_RULER:
 		stateMeasure();
 		break;
-	case APPSTATE_ALIGN:
+	case APPSTATE_PHOTOGRAPHER:
 		stateAlign();
 		break;
 	default:

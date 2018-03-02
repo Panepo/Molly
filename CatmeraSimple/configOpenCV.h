@@ -27,7 +27,10 @@
 #define sectionColor	cv::Scalar(0, 255,255)		// yellow
 #define sectionBGColor	cv::Scalar(0, 0, 0)			// black
 #define sectionMapSize	3
-#define sectionMapColor  cv::Scalar(0, 255,0)		// green
+#define sectionMapColor cv::Scalar(0, 255,0)		// green
+
+#define scanRectColor	cv::Scalar(0, 255,0)		// green
+#define scanRectSize	2
 
 #endif // !CONFIGOPENCV_H
 

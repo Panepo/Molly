@@ -71,5 +71,8 @@
     <ClCompile Include="appFuncAlign.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="appFuncScan.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

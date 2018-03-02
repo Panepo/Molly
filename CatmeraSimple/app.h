@@ -11,6 +11,7 @@
 #include <ctime>
 #include <sstream>
 #include <vector>
+#include <algorithm> 
 
 #include "configCamera.h"
 #include "configOpenCV.h"
@@ -22,8 +23,9 @@ typedef enum appState
 	APPSTATE_COLOR,
 	APPSTATE_INFRARED,
 	APPSTATE_DEPTH,
-	APPSTATE_MEASURE,
-	APPSTATE_ALIGN,
+	APPSTATE_RULER,
+	APPSTATE_PHOTOGRAPHER,
+	APPSTATE_SCANNER,
 } appState;
 
 class app
@@ -67,6 +69,7 @@ private:
 	void stateDepth();
 	void stateMeasure();
 	void stateAlign();
+	void stateScanner();
 
 	// events
 	void eventKeyboard();
@@ -77,6 +80,7 @@ private:
 	void streamPostProcess(cv::Mat* input, rs2::depth_frame* depth);
 	void measurePostProcess(cv::Mat* input, rs2::depth_frame* depth);
 	void alignPostProcess(cv::Mat* input, cv::Mat * depth);
+	void scanPostProcess(cv::Mat* input, rs2::depth_frame* depth);
 	
 	// stream pointer and related parameters
 	void streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics* intrin);
@@ -102,6 +106,8 @@ private:
 
 	// align renderer and related parameters
 	void alignRenderer(cv::Mat* input, cv::Mat * depth);
+
+	void scanRenderer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 };
 
 

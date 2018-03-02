@@ -48,3 +48,5 @@ void app::alignRenderer(cv::Mat * input, cv::Mat * depth)
 	input->copyTo(foreground, (mask == cv::GC_FGD) | (mask == cv::GC_PR_FGD));
 	*input = foreground.clone();
 }
+
+

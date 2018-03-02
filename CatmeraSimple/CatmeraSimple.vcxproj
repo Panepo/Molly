@@ -170,6 +170,7 @@
     <ClCompile Include="appFuncAlign.cpp" />
     <ClCompile Include="appFuncMeasure.cpp" />
     <ClCompile Include="appFuncStream.cpp" />
+    <ClCompile Include="appFuncScan.cpp" />
     <ClCompile Include="appState.cpp" />
     <ClCompile Include="CatmeraSimple.cpp" />
     <ClCompile Include="funcFormat.cpp" />

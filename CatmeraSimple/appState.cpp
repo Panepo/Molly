@@ -102,6 +102,47 @@ void app::stateAlign()
 		cv::Mat depthMat = funcFormat::frame2Mat(depthColor);
 		alignPostProcess(&colorMat, &depthMat);
 	}
+	else
+	{
+		rs2::align alignTo(RS2_STREAM_INFRARED);
+		rs2::frameset alignedFrame = alignTo.process(data);
+
+		cv::Mat infraredMat = funcFormat::frame2Mat(alignedFrame.first(RS2_STREAM_INFRARED));
+		rs2::depth_frame depth = alignedFrame.get_depth_frame();
+		depth = filterSpat.process(depth);
+		depth = filterTemp.process(depth);
+		rs2::frame depthColor = colorize(depth);
+		cv::Mat depthMat = funcFormat::frame2Mat(depthColor);
+		alignPostProcess(&infraredMat, &depthMat);
+	}
+}
+
+void app::stateScanner()
+{
+	rs2::frameset data = pipeline.wait_for_frames();
+
+	if (stream & EnableColor)
+	{
+		rs2::align alignTo(RS2_STREAM_COLOR);
+		rs2::frameset alignedFrame = alignTo.process(data);
+
+		cv::Mat colorMat = funcFormat::frame2Mat(alignedFrame.get_color_frame());
+		rs2::depth_frame depth = alignedFrame.get_depth_frame();
+		depth = filterSpat.process(depth);
+		depth = filterTemp.process(depth);
+		scanPostProcess(&colorMat, &depth);
+	}
+	else
+	{
+		rs2::align alignTo(RS2_STREAM_INFRARED);
+		rs2::frameset alignedFrame = alignTo.process(data);
+
+		cv::Mat infraredMat = funcFormat::frame2Mat(alignedFrame.first(RS2_STREAM_INFRARED));
+		rs2::depth_frame depth = alignedFrame.get_depth_frame();
+		depth = filterSpat.process(depth);
+		depth = filterTemp.process(depth);
+		scanPostProcess(&infraredMat, &depth);
+	}
 }
 
 // =================================================================================
@@ -138,6 +179,17 @@ void app::alignPostProcess(cv::Mat * input, cv::Mat * depth)
 {
 	alignRenderer(input, depth);
 	outputMat = streamZoomer(input);
+
+	std::ostringstream strs;
+	strs << elapsed;
+	std::string str = strs.str() + " ms " + distText;
+	streamInfoer(&outputMat, str);
+}
+
+void app::scanPostProcess(cv::Mat * input, rs2::depth_frame * depth)
+{
+	outputMat = streamZoomer(input);
+	scanRenderer(&outputMat, depth, &intrinsics);
 
 	std::ostringstream strs;
 	strs << elapsed;

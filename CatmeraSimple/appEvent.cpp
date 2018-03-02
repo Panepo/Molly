@@ -36,9 +36,11 @@ void app::eventKeyboard()
 		case APPSTATE_COLOR:
 		case APPSTATE_INFRARED:
 		case APPSTATE_DEPTH:
-			state = APPSTATE_ALIGN;
+		case APPSTATE_RULER:
+		case APPSTATE_SCANNER:
+			state = APPSTATE_PHOTOGRAPHER;
 			break;
-		case APPSTATE_ALIGN:
+		case APPSTATE_PHOTOGRAPHER:
 			if (stream & EnableColor)
 				state = APPSTATE_COLOR;
 			else if (stream & EnableInfrared)
@@ -55,9 +57,32 @@ void app::eventKeyboard()
 		case APPSTATE_COLOR:
 		case APPSTATE_INFRARED:
 		case APPSTATE_DEPTH:
-			state = APPSTATE_MEASURE;
+		case APPSTATE_PHOTOGRAPHER:
+		case APPSTATE_SCANNER:
+			state = APPSTATE_RULER;
 			break;
-		case APPSTATE_MEASURE:
+		case APPSTATE_RULER:
+			if (stream & EnableColor)
+				state = APPSTATE_COLOR;
+			else if (stream & EnableInfrared)
+				state = APPSTATE_INFRARED;
+			break;
+		default:
+			break;
+		}
+	}
+	else if (key == 'x' || key == 'X')
+	{
+		switch (state)
+		{
+		case APPSTATE_COLOR:
+		case APPSTATE_INFRARED:
+		case APPSTATE_DEPTH:
+		case APPSTATE_PHOTOGRAPHER:
+		case APPSTATE_RULER:
+			state = APPSTATE_SCANNER;
+			break;
+		case APPSTATE_SCANNER:
 			if (stream & EnableColor)
 				state = APPSTATE_COLOR;
 			else if (stream & EnableInfrared)
@@ -95,7 +120,7 @@ void app::eventMouse(int event, int x, int y, int flags)
 			if (y >= 0 && y <= DepthHeight)
 				pixel[1] = (float)y;
 		case APPSTATE_DEPTH:
-		case APPSTATE_MEASURE:
+		case APPSTATE_RULER:
 			if (stream & EnableColor)
 			{
 				if (x >= 0 && x <= ColorWidth)
@@ -118,7 +143,7 @@ void app::eventMouse(int event, int x, int y, int flags)
 	case CV_EVENT_LBUTTONDOWN:
 		switch (state)
 		{
-		case APPSTATE_MEASURE:
+		case APPSTATE_RULER:
 			if (stream & EnableColor)
 			{
 				if (x >= 0 && x <= ColorWidth)
@@ -147,7 +172,7 @@ void app::eventMouse(int event, int x, int y, int flags)
 	case CV_EVENT_RBUTTONDOWN:
 		switch (state)
 		{
-		case APPSTATE_MEASURE:
+		case APPSTATE_RULER:
 			if (stream & EnableColor)
 			{
 				if (x >= 0 && x <= ColorWidth)
@@ -179,7 +204,7 @@ void app::eventMouse(int event, int x, int y, int flags)
 		case APPSTATE_COLOR:
 		case APPSTATE_INFRARED:
 		case APPSTATE_DEPTH:
-		case APPSTATE_MEASURE:
+		case APPSTATE_RULER:
 			pixelZoom[0] = x;
 			pixelZoom[1] = y;
 
