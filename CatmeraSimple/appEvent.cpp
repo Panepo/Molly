@@ -36,6 +36,25 @@ void app::eventKeyboard()
 		case APPSTATE_COLOR:
 		case APPSTATE_INFRARED:
 		case APPSTATE_DEPTH:
+			state = APPSTATE_ALIGN;
+			break;
+		case APPSTATE_ALIGN:
+			if (stream & EnableColor)
+				state = APPSTATE_COLOR;
+			else if (stream & EnableInfrared)
+				state = APPSTATE_INFRARED;
+			break;
+		default:
+			break;
+		}
+	}
+	else if (key == 'z' || key == 'Z')
+	{
+		switch (state)
+		{
+		case APPSTATE_COLOR:
+		case APPSTATE_INFRARED:
+		case APPSTATE_DEPTH:
 			state = APPSTATE_MEASURE;
 			break;
 		case APPSTATE_MEASURE:

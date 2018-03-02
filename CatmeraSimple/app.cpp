@@ -45,6 +45,9 @@ void app::cameraInitial()
 	pixelA[1] = (float)ColorHeight / 2;
 	pixelB[0] = (float)ColorWidth * 2 / 5;
 	pixelB[1] = (float)ColorHeight / 2;
+
+	// Skips some frames to allow for auto-exposure stabilization
+	for (int i = 0; i < 10; i++) pipeline.wait_for_frames();
 }
 
 void app::cameraProcess()
@@ -65,6 +68,9 @@ void app::cameraProcess()
 		break;
 	case APPSTATE_MEASURE:
 		stateMeasure();
+		break;
+	case APPSTATE_ALIGN:
+		stateAlign();
 		break;
 	default:
 		state = APPSTATE_EXIT;

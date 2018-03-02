@@ -62,7 +62,13 @@
     <ClCompile Include="appEvent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="appFunc.cpp">
+    <ClCompile Include="appFuncStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="appFuncMeasure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="appFuncAlign.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
