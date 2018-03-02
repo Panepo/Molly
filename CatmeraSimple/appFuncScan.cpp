@@ -15,7 +15,7 @@ struct contourSorter
 // Application minor private functions for scanner
 // =================================================================================
 
-void app::scanRenderer(cv::Mat * input, const rs2::depth_frame * depth, const rs2_intrinsics * intrin)
+void app::scannerDrawer(cv::Mat * input, const rs2::depth_frame * depth, const rs2_intrinsics * intrin)
 {
 	cv::Mat inputGray;
 	cv::cvtColor(*input, inputGray, CV_RGB2GRAY);

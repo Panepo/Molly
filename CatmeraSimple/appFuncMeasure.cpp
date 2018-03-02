@@ -5,7 +5,7 @@
 // Application minor private functions for measurer
 // =================================================================================
 
-void app::measurePointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin)
+void app::rulerPointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin)
 {
 	float posA[2], posB[2];
 
@@ -61,7 +61,7 @@ float app::measureDist(const rs2_intrinsics* intrin, const rs2::depth_frame* dep
 		pow(pointA[2] - pointB[2], 2)) * 10000) / 100;
 }
 
-void app::measureDrawer(cv::Mat * input, const rs2::depth_frame * depth)
+void app::rulerDrawer(cv::Mat * input, const rs2::depth_frame * depth)
 {
 	float posA[2], posB[2];
 

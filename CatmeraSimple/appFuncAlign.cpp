@@ -24,7 +24,7 @@ auto create_mask_from_depth = [&](cv::Mat& depth, int thresh, cv::ThresholdTypes
 // Application minor private functions for aligner
 // =================================================================================
 
-void app::alignRenderer(cv::Mat * input, cv::Mat * depth)
+void app::photographerRenderer(cv::Mat * input, cv::Mat * depth)
 {
 	cv::Mat near = depth->clone();
 	cv::cvtColor(near, near, CV_BGR2GRAY);

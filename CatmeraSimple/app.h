@@ -67,8 +67,8 @@ private:
 	void stateColor();
 	void stateInfrared();
 	void stateDepth();
-	void stateMeasure();
-	void stateAlign();
+	void stateRuler();
+	void statePhotographer();
 	void stateScanner();
 
 	// events
@@ -77,10 +77,10 @@ private:
 	void eventMouse(int event, int x, int y, int flags);
 
 	// stream post processing
-	void streamPostProcess(cv::Mat* input, rs2::depth_frame* depth);
-	void measurePostProcess(cv::Mat* input, rs2::depth_frame* depth);
-	void alignPostProcess(cv::Mat* input, cv::Mat * depth);
-	void scanPostProcess(cv::Mat* input, rs2::depth_frame* depth);
+	void postStreamer(cv::Mat* input, rs2::depth_frame* depth);
+	void postRuler(cv::Mat* input, rs2::depth_frame* depth);
+	void postPhotographer(cv::Mat* input, cv::Mat * depth);
+	void postScanner(cv::Mat* input, rs2::depth_frame* depth);
 	
 	// stream pointer and related parameters
 	void streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics* intrin);
@@ -97,17 +97,17 @@ private:
 	float scaleZoom = 1;
 
 	// measure pointer, drawer and related parameters
-	void measurePointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
+	void rulerPointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	float measureDist(const rs2_intrinsics* intr, const rs2::depth_frame* frame, float pixelA[3], float pixelB[3]);
-	void measureDrawer(cv::Mat* input, const rs2::depth_frame* depth);
+	void rulerDrawer(cv::Mat* input, const rs2::depth_frame* depth);
 	float pixelA[2] = { 0, 0 };
 	float pixelB[2] = { 0, 0 };
 	std::string distText;
 
 	// align renderer and related parameters
-	void alignRenderer(cv::Mat* input, cv::Mat * depth);
+	void photographerRenderer(cv::Mat* input, cv::Mat * depth);
 
-	void scanRenderer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
+	void scannerDrawer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 };
 
 

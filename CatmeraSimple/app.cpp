@@ -67,10 +67,10 @@ void app::cameraProcess()
 		stateDepth();
 		break;
 	case APPSTATE_RULER:
-		stateMeasure();
+		stateRuler();
 		break;
 	case APPSTATE_PHOTOGRAPHER:
-		stateAlign();
+		statePhotographer();
 		break;
 	default:
 		state = APPSTATE_EXIT;

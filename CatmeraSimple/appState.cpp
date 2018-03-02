@@ -16,7 +16,7 @@ void app::stateColor()
 	depth = filterSpat.process(depth);
 	depth = filterTemp.process(depth);
 
-	streamPostProcess(&colorMat, &depth);
+	postStreamer(&colorMat, &depth);
 }
 
 void app::stateInfrared()
@@ -30,7 +30,7 @@ void app::stateInfrared()
 	depth = filterSpat.process(depth);
 	depth = filterTemp.process(depth);
 
-	streamPostProcess(&infraredMat, &depth);
+	postStreamer(&infraredMat, &depth);
 }
 
 void app::stateDepth()
@@ -51,10 +51,10 @@ void app::stateDepth()
 	rs2::frame depthColor = colorize(depth);
 	cv::Mat depthMat = funcFormat::frame2Mat(depthColor);
 
-	streamPostProcess(&depthMat, &depth);
+	postStreamer(&depthMat, &depth);
 }
 
-void app::stateMeasure()
+void app::stateRuler()
 {
 	rs2::frameset data = pipeline.wait_for_frames();
 
@@ -67,7 +67,7 @@ void app::stateMeasure()
 		rs2::depth_frame depth = alignedFrame.get_depth_frame();
 		depth = filterSpat.process(depth);
 		depth = filterTemp.process(depth);
-		measurePostProcess(&colorMat, &depth);
+		postRuler(&colorMat, &depth);
 	}
 	else
 	{
@@ -78,11 +78,11 @@ void app::stateMeasure()
 		rs2::depth_frame depth = alignedFrame.get_depth_frame();
 		depth = filterSpat.process(depth);
 		depth = filterTemp.process(depth);
-		measurePostProcess(&infraredMat, &depth);
+		postRuler(&infraredMat, &depth);
 	}
 }
 
-void app::stateAlign()
+void app::statePhotographer()
 {
 	rs2::colorizer colorize;
 	colorize.set_option(RS2_OPTION_COLOR_SCHEME, 2);
@@ -100,7 +100,7 @@ void app::stateAlign()
 		depth = filterTemp.process(depth);
 		rs2::frame depthColor = colorize(depth);
 		cv::Mat depthMat = funcFormat::frame2Mat(depthColor);
-		alignPostProcess(&colorMat, &depthMat);
+		postPhotographer(&colorMat, &depthMat);
 	}
 	else
 	{
@@ -113,7 +113,7 @@ void app::stateAlign()
 		depth = filterTemp.process(depth);
 		rs2::frame depthColor = colorize(depth);
 		cv::Mat depthMat = funcFormat::frame2Mat(depthColor);
-		alignPostProcess(&infraredMat, &depthMat);
+		postPhotographer(&infraredMat, &depthMat);
 	}
 }
 
@@ -130,7 +130,7 @@ void app::stateScanner()
 		rs2::depth_frame depth = alignedFrame.get_depth_frame();
 		depth = filterSpat.process(depth);
 		depth = filterTemp.process(depth);
-		scanPostProcess(&colorMat, &depth);
+		postScanner(&colorMat, &depth);
 	}
 	else
 	{
@@ -141,7 +141,7 @@ void app::stateScanner()
 		rs2::depth_frame depth = alignedFrame.get_depth_frame();
 		depth = filterSpat.process(depth);
 		depth = filterTemp.process(depth);
-		scanPostProcess(&infraredMat, &depth);
+		postScanner(&infraredMat, &depth);
 	}
 }
 
@@ -149,7 +149,7 @@ void app::stateScanner()
 // Application major private functions
 // =================================================================================
 
-void app::streamPostProcess(cv::Mat* input, rs2::depth_frame* depth)
+void app::postStreamer(cv::Mat* input, rs2::depth_frame* depth)
 {
 	outputMat = streamZoomer(input);
 
@@ -162,12 +162,12 @@ void app::streamPostProcess(cv::Mat* input, rs2::depth_frame* depth)
 	streamInfoer(&outputMat, str);
 }
 
-void app::measurePostProcess(cv::Mat * input, rs2::depth_frame * depth)
+void app::postRuler(cv::Mat * input, rs2::depth_frame * depth)
 {
 	outputMat = streamZoomer(input);
 
-	measurePointer(&outputMat, depth, &intrinsics);
-	measureDrawer(&outputMat, depth);
+	rulerPointer(&outputMat, depth, &intrinsics);
+	rulerDrawer(&outputMat, depth);
 
 	std::ostringstream strs;
 	strs << elapsed;
@@ -175,9 +175,9 @@ void app::measurePostProcess(cv::Mat * input, rs2::depth_frame * depth)
 	streamInfoer(&outputMat, str);
 }
 
-void app::alignPostProcess(cv::Mat * input, cv::Mat * depth)
+void app::postPhotographer(cv::Mat * input, cv::Mat * depth)
 {
-	alignRenderer(input, depth);
+	photographerRenderer(input, depth);
 	outputMat = streamZoomer(input);
 
 	std::ostringstream strs;
@@ -186,10 +186,10 @@ void app::alignPostProcess(cv::Mat * input, cv::Mat * depth)
 	streamInfoer(&outputMat, str);
 }
 
-void app::scanPostProcess(cv::Mat * input, rs2::depth_frame * depth)
+void app::postScanner(cv::Mat * input, rs2::depth_frame * depth)
 {
 	outputMat = streamZoomer(input);
-	scanRenderer(&outputMat, depth, &intrinsics);
+	scannerDrawer(&outputMat, depth, &intrinsics);
 
 	std::ostringstream strs;
 	strs << elapsed;
