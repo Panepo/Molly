@@ -5,8 +5,9 @@
 #include <librealsense2\rs.hpp>
 #include <opencv2\opencv.hpp>
 #include <librealsense2\rsutil.h>
+#include <omp.h>
 
-#include <boost/range/irange.hpp>
+//#include <boost/range/irange.hpp>
 
 #include <ctime>
 #include <sstream>
@@ -62,6 +63,7 @@ private:
 	rs2::spatial_filter filterSpat;
 	rs2::temporal_filter filterTemp;
 	double elapsed = 0;
+	double elapsedAvg = 0;
 
 	// states
 	void stateColor();

@@ -62,16 +62,16 @@
     <ClCompile Include="appEvent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="appFuncStream.cpp">
+    <ClCompile Include="appFuncScaner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="appFuncMeasure.cpp">
+    <ClCompile Include="appFuncStreamer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="appFuncAlign.cpp">
+    <ClCompile Include="appFuncRuler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="appFuncScan.cpp">
+    <ClCompile Include="appFuncPhotographer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

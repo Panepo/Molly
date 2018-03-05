@@ -27,13 +27,23 @@ auto create_mask_from_depth = [&](cv::Mat& depth, int thresh, cv::ThresholdTypes
 void app::photographerRenderer(cv::Mat * input, cv::Mat * depth)
 {
 	cv::Mat near = depth->clone();
-	cv::cvtColor(near, near, CV_BGR2GRAY);
-	create_mask_from_depth(near, 180, cv::THRESH_BINARY);
-
 	cv::Mat far = depth->clone();
-	cv::cvtColor(far, far, CV_BGR2GRAY);
-	far.setTo(255, far == 0); 
-	create_mask_from_depth(far, 100, cv::THRESH_BINARY_INV);
+
+	#pragma omp parallel sections
+	{
+		#pragma omp section
+		{		
+			cv::cvtColor(near, near, CV_BGR2GRAY);
+			create_mask_from_depth(near, 180, cv::THRESH_BINARY);
+		}
+		
+		#pragma omp section
+		{	
+			cv::cvtColor(far, far, CV_BGR2GRAY);
+			far.setTo(255, far == 0);
+			create_mask_from_depth(far, 100, cv::THRESH_BINARY_INV);
+		}
+	}
 
 	cv::Mat mask;
 	mask.create(near.size(), CV_8UC1);

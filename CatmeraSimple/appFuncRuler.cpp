@@ -96,7 +96,8 @@ void app::rulerDrawer(cv::Mat * input, const rs2::depth_frame * depth)
 
 	if (xdiff < ydiff)
 	{
-		for (int i : boost::irange<int>(0, (int)ydiff))
+		for (int i = 0; i < ydiff; i += 1)
+		//for (int i : boost::irange<int>(0, (int)ydiff))
 		{
 			posX = (int)floor(posB[0] + directX * (float)i * xdiff / ydiff);
 			posY = (int)floor(posB[1] + directY * (float)i);
@@ -106,7 +107,8 @@ void app::rulerDrawer(cv::Mat * input, const rs2::depth_frame * depth)
 	}
 	else
 	{
-		for (int i : boost::irange<int>(0, (int)xdiff))
+		for (int i = 0; i < xdiff; i += 1)
+		//for (int i : boost::irange<int>(0, (int)xdiff))
 		{
 			posX = (int)floor(posB[0] + directX * (float)i);
 			posY = (int)floor(posB[1] + directY * (float)i * ydiff / xdiff);
@@ -127,7 +129,10 @@ void app::rulerDrawer(cv::Mat * input, const rs2::depth_frame * depth)
 
 		// draw sectional drawing
 		cv::Mat minimap = cv::Mat(sectionHeight, (int)output.size(), CV_8UC3, sectionColor);
-		for (int i : boost::irange<int>(0, (int)output.size()))
+		
+		//#pragma omp parallel for
+		for (int i = 0; i < (int)output.size(); i += 1)
+		//for (int i : boost::irange<int>(0, (int)output.size()))
 		{
 			cv::line(minimap, cv::Point(i, 0),
 				cv::Point(i, (int)((output[i] - *outMinMax.first) * parm)), sectionBGColor, 1);

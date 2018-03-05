@@ -26,18 +26,30 @@ void app::scannerDrawer(cv::Mat * input, const rs2::depth_frame * depth, const r
 
 	std::vector<std::vector<cv::Point>> contours;
 	std::vector<cv::Vec4i> hierarchy;
-	cv::findContours(inputEdge, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+	cv::findContours(inputEdge, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
 	std::sort(contours.begin(), contours.end(), contourSorter());
-	
-	//std::cout << "fq: " << cv::contourArea(contours[0]) << std::endl;
-	if (cv::contourArea(contours[0]) > scanMinSize)
+
+	std::vector<cv::Point> approx;
+	for (int i = 0; i < (int)contours.size(); i += 1)
 	{
-		cv::RotatedRect boundingBox = cv::minAreaRect(contours[0]);
-		cv::Point2f corners[4];
-		boundingBox.points(corners);
-		cv::line(*input, corners[0], corners[1], scanRectColor, scanRectSize);
-		cv::line(*input, corners[1], corners[2], scanRectColor, scanRectSize);
-		cv::line(*input, corners[2], corners[3], scanRectColor, scanRectSize);
-		cv::line(*input, corners[3], corners[0], scanRectColor, scanRectSize);
+		cv::approxPolyDP(contours[i], approx, cv::arcLength(contours[i], true) * 0.01, true);
+
+		if ((int)approx.size() == 4)
+		{
+			cv::drawContours(*input, contours, i, scanRectColor, scanRectSize);
+			break;
+		}
+		else if ((int)approx.size() == 5 || (int)approx.size() == 6)
+		{
+			cv::drawContours(*input, contours, i, scanRectColor, scanRectSize);
+			cv::RotatedRect boundingBox = cv::minAreaRect(contours[0]);
+			cv::Point2f corners[4];
+			boundingBox.points(corners);
+			cv::line(*input, corners[0], corners[1], sectionColor, scanRectSize);
+			cv::line(*input, corners[1], corners[2], sectionColor, scanRectSize);
+			cv::line(*input, corners[2], corners[3], sectionColor, scanRectSize);
+			cv::line(*input, corners[3], corners[0], sectionColor, scanRectSize);
+			break;
+		}
 	}
 }

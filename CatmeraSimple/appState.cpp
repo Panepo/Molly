@@ -48,6 +48,7 @@ void app::stateDepth()
 	rs2::depth_frame depth = alignedFrame.get_depth_frame();
 	depth = filterSpat.process(depth);
 	depth = filterTemp.process(depth);
+	
 	rs2::frame depthColor = colorize(depth);
 	cv::Mat depthMat = funcFormat::frame2Mat(depthColor);
 
@@ -67,6 +68,7 @@ void app::stateRuler()
 		rs2::depth_frame depth = alignedFrame.get_depth_frame();
 		depth = filterSpat.process(depth);
 		depth = filterTemp.process(depth);
+
 		postRuler(&colorMat, &depth);
 	}
 	else
@@ -78,6 +80,7 @@ void app::stateRuler()
 		rs2::depth_frame depth = alignedFrame.get_depth_frame();
 		depth = filterSpat.process(depth);
 		depth = filterTemp.process(depth);
+
 		postRuler(&infraredMat, &depth);
 	}
 }
@@ -98,6 +101,7 @@ void app::statePhotographer()
 		rs2::depth_frame depth = alignedFrame.get_depth_frame();
 		depth = filterSpat.process(depth);
 		depth = filterTemp.process(depth);
+
 		rs2::frame depthColor = colorize(depth);
 		cv::Mat depthMat = funcFormat::frame2Mat(depthColor);
 		postPhotographer(&colorMat, &depthMat);
@@ -130,6 +134,7 @@ void app::stateScanner()
 		rs2::depth_frame depth = alignedFrame.get_depth_frame();
 		depth = filterSpat.process(depth);
 		depth = filterTemp.process(depth);
+
 		postScanner(&colorMat, &depth);
 	}
 	else
@@ -141,6 +146,7 @@ void app::stateScanner()
 		rs2::depth_frame depth = alignedFrame.get_depth_frame();
 		depth = filterSpat.process(depth);
 		depth = filterTemp.process(depth);
+
 		postScanner(&infraredMat, &depth);
 	}
 }
@@ -155,8 +161,10 @@ void app::postStreamer(cv::Mat* input, rs2::depth_frame* depth)
 
 	streamPointer(&outputMat, depth, &intrinsics);
 
+	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
+
 	std::ostringstream strs;
-	strs << elapsed;
+	strs << elapsedAvg;
 	std::string str = strs.str() + " ms (" + std::to_string((int)point[0]) + " "
 		+ std::to_string((int)point[1]) + " " + std::to_string((int)point[2]) + ")";
 	streamInfoer(&outputMat, str);
@@ -169,8 +177,10 @@ void app::postRuler(cv::Mat * input, rs2::depth_frame * depth)
 	rulerPointer(&outputMat, depth, &intrinsics);
 	rulerDrawer(&outputMat, depth);
 
+	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
+
 	std::ostringstream strs;
-	strs << elapsed;
+	strs << elapsedAvg;
 	std::string str = strs.str() + " ms " + distText;
 	streamInfoer(&outputMat, str);
 }
@@ -180,8 +190,10 @@ void app::postPhotographer(cv::Mat * input, cv::Mat * depth)
 	photographerRenderer(input, depth);
 	outputMat = streamZoomer(input);
 
+	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
+
 	std::ostringstream strs;
-	strs << elapsed;
+	strs << elapsedAvg;
 	std::string str = strs.str() + " ms " + distText;
 	streamInfoer(&outputMat, str);
 }
@@ -191,8 +203,10 @@ void app::postScanner(cv::Mat * input, rs2::depth_frame * depth)
 	outputMat = streamZoomer(input);
 	scannerDrawer(&outputMat, depth, &intrinsics);
 
+	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
+
 	std::ostringstream strs;
-	strs << elapsed;
+	strs << elapsedAvg;
 	std::string str = strs.str() + " ms " + distText;
 	streamInfoer(&outputMat, str);
 }
