@@ -19,7 +19,7 @@ void app::scannerDrawer(cv::Mat * input, const rs2::depth_frame * depth, const r
 {
 	cv::Mat inputGray;
 	cv::cvtColor(*input, inputGray, CV_RGB2GRAY);
-	cv::GaussianBlur(inputGray, inputGray, cv::Size(3, 3), 0, 0);
+	cv::threshold(inputGray, inputGray, 0, 255, CV_THRESH_BINARY_INV | CV_THRESH_OTSU);
 
 	cv::Mat inputEdge;
 	cv::Canny(inputGray, inputEdge, 75, 200, 3);
@@ -27,21 +27,17 @@ void app::scannerDrawer(cv::Mat * input, const rs2::depth_frame * depth, const r
 	std::vector<std::vector<cv::Point>> contours;
 	std::vector<cv::Vec4i> hierarchy;
 	cv::findContours(inputEdge, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
-
 	std::sort(contours.begin(), contours.end(), contourSorter());
-	std::reverse(contours.begin(), contours.end());
 	
-	std::vector<std::vector<cv::Point>> approx;
-	double peri = 0;
-	for (int i : boost::irange<int>(0, (int)contours.size()))
+	//std::cout << "fq: " << cv::contourArea(contours[0]) << std::endl;
+	if (cv::contourArea(contours[0]) > scanMinSize)
 	{
-		peri = cv::arcLength(contours[i], true);
-		cv::approxPolyDP(contours[i], approx[0], 0.02 * peri, true);
-
-		if (approx[0].size() == 4)
-		{
-			cv::drawContours(*input, approx, -1, scanRectColor, scanRectSize);
-			break;
-		}	
+		cv::RotatedRect boundingBox = cv::minAreaRect(contours[0]);
+		cv::Point2f corners[4];
+		boundingBox.points(corners);
+		cv::line(*input, corners[0], corners[1], scanRectColor, scanRectSize);
+		cv::line(*input, corners[1], corners[2], scanRectColor, scanRectSize);
+		cv::line(*input, corners[2], corners[3], scanRectColor, scanRectSize);
+		cv::line(*input, corners[3], corners[0], scanRectColor, scanRectSize);
 	}
 }

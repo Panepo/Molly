@@ -72,6 +72,9 @@ void app::cameraProcess()
 	case APPSTATE_PHOTOGRAPHER:
 		statePhotographer();
 		break;
+	case APPSTATE_SCANNER:
+		stateScanner();
+		break;
 	default:
 		state = APPSTATE_EXIT;
 		break;
