@@ -160,6 +160,8 @@
     <ClInclude Include="configCamera.h" />
     <ClInclude Include="configOpenCV.h" />
     <ClInclude Include="funcFormat.h" />
+    <ClInclude Include="funcGeometry2D.h" />
+    <ClInclude Include="funcGeometry3D.h" />
     <ClInclude Include="funcOpenCV.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -174,6 +176,8 @@
     <ClCompile Include="appState.cpp" />
     <ClCompile Include="CatmeraSimple.cpp" />
     <ClCompile Include="funcFormat.cpp" />
+    <ClCompile Include="funcGeometry2D.cpp" />
+    <ClCompile Include="funcGeometry3D.cpp" />
     <ClCompile Include="funcOpenCV.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

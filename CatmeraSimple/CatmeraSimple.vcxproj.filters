@@ -39,6 +39,12 @@
     <ClInclude Include="funcOpenCV.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="funcGeometry2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="funcGeometry3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -72,6 +78,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="appFuncPhotographer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="funcGeometry2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="funcGeometry3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

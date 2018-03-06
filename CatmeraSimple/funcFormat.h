@@ -5,9 +5,8 @@
 #include <librealsense2/rs.hpp>
 #include <opencv2/opencv.hpp>
 
-class funcFormat
+namespace funcFormat
 {
-public:
-	static cv::Mat frame2Mat(const rs2::frame& f);
+	cv::Mat frame2Mat(const rs2::frame& f);
 };
 #endif // !FUNCFORMAT_H

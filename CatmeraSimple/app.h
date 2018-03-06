@@ -3,8 +3,8 @@
 #define APP_H
 
 #include <librealsense2\rs.hpp>
-#include <opencv2\opencv.hpp>
 #include <librealsense2\rsutil.h>
+#include <opencv2\opencv.hpp>
 #include <omp.h>
 
 //#include <boost/range/irange.hpp>
@@ -100,7 +100,6 @@ private:
 
 	// measure pointer, drawer and related parameters
 	void rulerPointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
-	float measureDist(const rs2_intrinsics* intr, const rs2::depth_frame* frame, float pixelA[3], float pixelB[3]);
 	void rulerDrawer(cv::Mat* input, const rs2::depth_frame* depth);
 	float pixelA[2] = { 0, 0 };
 	float pixelB[2] = { 0, 0 };

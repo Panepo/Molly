@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "app.h"
+#include "funcOpenCV.h"
 
 // =================================================================================
 // Application minor private functions for streamer
@@ -79,12 +80,7 @@ cv::Mat app::streamZoomer(cv::Mat* input)
 		cv::Mat outMap = input->clone();
 		cv::rectangle(outMap, roi, zoomerLineColor, zoomerLineSize);
 		cv::Size sizeMap = cv::Size((int)(size.width / 8), (int)(size.height / 8));
-		cv::resize(outMap, outMap, sizeMap, 0, 0, CV_INTER_AREA);
-		cv::copyMakeBorder(outMap, outMap, zoomerMapSize, zoomerMapSize, zoomerMapSize,
-			zoomerMapSize, cv::BORDER_CONSTANT, zoomerMapColor);
-		outMap.copyTo(output(cv::Rect(10, size.height - sizeMap.height - 10,
-			outMap.cols, outMap.rows)));
-
+		funcOpenCV::addMinimapLD(output, outMap, output, sizeMap, zoomerMapSize, zoomerMapColor);
 		return output;
 	}
 }
