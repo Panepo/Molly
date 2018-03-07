@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "app.h"
 #include "funcOpenCV.h"
+#include <librealsense2\rsutil.h>
 
 // =================================================================================
 // Application minor private functions for streamer

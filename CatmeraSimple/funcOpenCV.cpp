@@ -8,8 +8,8 @@ namespace funcOpenCV
 		cv::Size size = input.size();
 		cv::resize(minimap, minimap, sizeMap, 0, 0, CV_INTER_LINEAR);
 		cv::copyMakeBorder(minimap, minimap, border, border, border, border, cv::BORDER_CONSTANT, color);
-		minimap.copyTo(input(cv::Rect(size.width - sizeMap.width - 10, size.height - sizeMap.height - 10,
-				minimap.cols, minimap.rows)));
+		minimap.copyTo(input(cv::Rect(size.width - minimap.cols - 10, size.height - minimap.rows - 10,
+			minimap.cols, minimap.rows)));
 		output = input.clone();
 	}
 
@@ -18,7 +18,7 @@ namespace funcOpenCV
 		cv::Size size = input.size();
 		cv::resize(minimap, minimap, sizeMap, 0, 0, CV_INTER_LINEAR);
 		cv::copyMakeBorder(minimap, minimap, border, border, border, border, cv::BORDER_CONSTANT, color);
-		minimap.copyTo(input(cv::Rect(10, size.height - sizeMap.height - 10,
+		minimap.copyTo(input(cv::Rect(10, size.height - minimap.rows - 10,
 			minimap.cols, minimap.rows)));
 		output = input.clone();
 	}
@@ -91,7 +91,7 @@ namespace funcOpenCV
 			cv::Point2f((float)widthMax - 1, (float)heightMax - 1),
 			cv::Point2f(0, (float)heightMax - 1)
 		};
-		cv::Mat m = cv::getPerspectiveTransform(rectOrig, rectOutput);
-		cv::warpPerspective(input, output, m, cv::Size((int)widthMax, (int)heightMax));
+		cv::Mat matrix = cv::getPerspectiveTransform(rectOrig, rectOutput);
+		cv::warpPerspective(input, output, matrix, cv::Size((int)widthMax, (int)heightMax));
 	}
 }

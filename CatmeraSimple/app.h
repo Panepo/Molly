@@ -3,7 +3,6 @@
 #define APP_H
 
 #include <librealsense2\rs.hpp>
-#include <librealsense2\rsutil.h>
 #include <opencv2\opencv.hpp>
 #include <omp.h>
 

@@ -31,8 +31,12 @@
 
 #define scanRectColor	cv::Scalar(0, 255,0)		// green
 #define scanRectSize	2
+#define scanMinArea		10000
 #define scanMapSize		3
 #define scanMapColor	cv::Scalar(0, 255,0)		// green
+#define scanGazeColor	cv::Scalar(0, 255,255)		// yellow
+#define scanGazeSize	1
+#define scanGazeRect	5
 
 #endif // !CONFIGOPENCV_H
 

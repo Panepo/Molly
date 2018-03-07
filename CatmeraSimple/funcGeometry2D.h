@@ -10,6 +10,8 @@
 namespace funcGeometry2D
 {	
 	double calcDist2D(cv::Point pixelA, cv::Point pixelB);
+
+	bool checkAspectRatio2D(cv::Point pixleA, cv::Point pixelB, cv::Point pixelC, double ratio);
 	
 	//struct Line
 	//{

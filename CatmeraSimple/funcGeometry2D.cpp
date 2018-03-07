@@ -8,6 +8,19 @@ namespace funcGeometry2D
 		return sqrt(((pixelA.x - pixelB.x) * (pixelA.x - pixelB.x)) +
 			((pixelA.y - pixelB.y) * (pixelA.y - pixelB.y)));
 	}
+
+	bool checkAspectRatio2D(cv::Point pixleA, cv::Point pixelB, cv::Point pixelC, double ratio)
+	{
+		double sideA = calcDist2D(pixleA, pixelB);
+		double sideB = calcDist2D(pixleA, pixelC);
+		double sideX = sideA / sideB;
+		double ratioInv = 1 / ratio;
+		
+		if (sideX >= ratioInv && sideX <= ratio)
+			return true;
+		
+		return false;
+	}
 	
 	
 	//inline bool checkEqual(double x, double y)
