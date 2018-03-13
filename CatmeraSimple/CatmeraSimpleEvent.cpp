@@ -1,11 +1,12 @@
 #include "stdafx.h"
+#include "CatmeraSimple.h"
 #include "app.h"
 
 // =================================================================================
 // Application events
 // =================================================================================
 
-void app::eventKeyboard()
+void eventKeyboard(appState& state, int stream, std::string windowTitle, cv::Mat& outputMat)
 {
 	char key = cv::waitKey(10);
 
@@ -92,6 +93,30 @@ void app::eventKeyboard()
 			break;
 		}
 	}
+	else if (key == 'w' || key == 'W')
+	{
+		time_t t = std::time(nullptr);
+#pragma warning( disable : 4996 )
+		tm tm = *std::localtime(&t);
+
+		std::ostringstream oss;
+		oss << std::put_time(&tm, "%d-%m-%Y %H-%M-%S");
+		std::string str = windowTitle + "_" + oss.str() + ".jpg";
+		cv::imwrite(str, outputMat);
+		std::cout << "file saved: " << str << std::endl;
+	}
+
+	
+	/*static std::clock_t begin = 0;
+	static std::clock_t end = 0;
+
+	end = clock();
+	elapsed = double(end - begin) * 1000 / CLOCKS_PER_SEC;
+	std::ostringstream strs;
+	strs << elapsed;
+	std::cout << "time elapsed: " << strs.str() << std::endl;
+
+	begin = end;*/
 }
 
 void app::eventMouseS(int event, int x, int y, int flags, void* userdata)
@@ -205,6 +230,7 @@ void app::eventMouse(int event, int x, int y, int flags)
 		case APPSTATE_INFRARED:
 		case APPSTATE_DEPTH:
 		case APPSTATE_RULER:
+		case APPSTATE_SCANNER:
 			pixelZoom[0] = x;
 			pixelZoom[1] = y;
 

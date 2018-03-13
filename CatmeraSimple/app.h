@@ -4,10 +4,11 @@
 
 #include <librealsense2\rs.hpp>
 #include <opencv2\opencv.hpp>
-#include <omp.h>
-
 //#include <boost/range/irange.hpp>
 
+#include <omp.h>
+
+//#include <iomanip>
 #include <ctime>
 #include <sstream>
 #include <vector>
@@ -40,7 +41,8 @@ public:
 	void setVisualPreset(std::string preset);
 
 	// public parameters
-	int state;
+	int stream = APPSTATE_EXIT;
+	appState state = APPSTATE_EXIT;
 	cv::Mat outputMat;
 
 private:
@@ -50,7 +52,6 @@ private:
 	rs2_intrinsics intrinsics;
 
 	// application parameters
-	int stream = APPSTATE_EXIT;
 	int ColorWidth = 640;
 	int ColorHeight = 480;
 	int ColorFPS = 30;
@@ -73,7 +74,7 @@ private:
 	void stateScanner();
 
 	// events
-	void eventKeyboard();
+	//void eventKeyboard();
 	static void eventMouseS(int event, int x, int y, int flags, void* userdata);
 	void eventMouse(int event, int x, int y, int flags);
 
@@ -107,7 +108,9 @@ private:
 	// align renderer and related parameters
 	void photographerRenderer(cv::Mat* input, cv::Mat * depth);
 
-	void scannerDrawer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
+	void scannerDrawerBlur(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
+	void scannerDrawerSharp(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
+	void scannerDrawerGaze(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 };
 
 

@@ -201,7 +201,7 @@ void app::postPhotographer(cv::Mat * input, cv::Mat * depth)
 void app::postScanner(cv::Mat * input, rs2::depth_frame * depth)
 {
 	outputMat = streamZoomer(input);
-	scannerDrawer(&outputMat, depth, &intrinsics);
+	scannerDrawerBlur(&outputMat, depth, &intrinsics);
 
 	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
 

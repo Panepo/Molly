@@ -5,8 +5,8 @@
 #include <iostream>
 #include <thread>
 
+#include "CatmeraSimple.h"
 #include "app.h"
-
 
 int main(int argc, char * argv[]) try
 {
@@ -24,6 +24,7 @@ int main(int argc, char * argv[]) try
 	{
 		catmera.cameraProcess();
 		cv::imshow(appTitle, catmera.outputMat);
+		eventKeyboard(catmera.state, catmera.stream, appTitle, catmera.outputMat);
 	}
 
 	return EXIT_SUCCESS;

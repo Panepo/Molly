@@ -80,7 +80,7 @@ void app::cameraProcess()
 		break;
 	}
 
-	eventKeyboard();
+	//eventKeyboard();
 	clock_t end = clock();
 	elapsed = double(end - begin) * 1000 / CLOCKS_PER_SEC;
 }

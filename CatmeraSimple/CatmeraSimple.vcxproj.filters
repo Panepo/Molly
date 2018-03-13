@@ -45,6 +45,9 @@
     <ClInclude Include="funcGeometry3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CatmeraSimple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -65,9 +68,6 @@
     <ClCompile Include="appState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="appEvent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="appFuncScaner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -84,6 +84,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="funcGeometry3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CatmeraSimpleEvent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
