@@ -7,7 +7,7 @@
 // Application minor private functions for streamer
 // =================================================================================
 
-void app::streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics* intrin)
+void app::streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics* intrin, float point[3])
 {
 	float pos[2];
 

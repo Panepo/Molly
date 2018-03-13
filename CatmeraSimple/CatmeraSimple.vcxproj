@@ -157,7 +157,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app.h" />
-    <ClInclude Include="CatmeraSimple.h" />
     <ClInclude Include="configCamera.h" />
     <ClInclude Include="configOpenCV.h" />
     <ClInclude Include="funcFormat.h" />
@@ -169,7 +168,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
-    <ClCompile Include="CatmeraSimpleEvent.cpp" />
     <ClCompile Include="appFuncPhotographer.cpp" />
     <ClCompile Include="appFuncRuler.cpp" />
     <ClCompile Include="appFuncStreamer.cpp" />

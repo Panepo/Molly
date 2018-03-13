@@ -159,7 +159,8 @@ void app::postStreamer(cv::Mat* input, rs2::depth_frame* depth)
 {
 	outputMat = streamZoomer(input);
 
-	streamPointer(&outputMat, depth, &intrinsics);
+	float point[3] = { 0, 0, 0 };
+	streamPointer(&outputMat, depth, &intrinsics, point);
 
 	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
 

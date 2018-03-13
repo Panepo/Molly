@@ -36,7 +36,7 @@ public:
 	void cameraInitial();
 	void cameraProcess();
 
-	// settings
+	// config settings
 	void setResolution(int stream, int width, int height, int fps);
 	void setVisualPreset(std::string preset);
 
@@ -44,6 +44,12 @@ public:
 	int stream = APPSTATE_EXIT;
 	appState state = APPSTATE_EXIT;
 	cv::Mat outputMat;
+
+	void eventMouseCV(int event, int x, int y, int flags, int wheel);
+	float pixel[2] = { 0, 0 };
+	int pixelZoom[2] = { 0, 0 };
+	float scaleZoom = 1;
+
 
 private:
 	// realsense parameters
@@ -75,8 +81,8 @@ private:
 
 	// events
 	//void eventKeyboard();
-	static void eventMouseS(int event, int x, int y, int flags, void* userdata);
-	void eventMouse(int event, int x, int y, int flags);
+	//static void eventMouseS(int event, int x, int y, int flags, void* userdata);
+	
 
 	// stream post processing
 	void postStreamer(cv::Mat* input, rs2::depth_frame* depth);
@@ -85,18 +91,17 @@ private:
 	void postScanner(cv::Mat* input, rs2::depth_frame* depth);
 	
 	// stream pointer and related parameters
-	void streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics* intrin);
-	float pixel[2] = { 0, 0 };
-	float point[3] = { 0, 0, 0 };
+	void streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics* intrin, float point[3]);
+	
+	//float point[3] = { 0, 0, 0 };
 	
 	// stream infoer and related parameters
 	void streamInfoer(cv::Mat* input, std::string text);
 	
 	// stream zoomer and related parameters
 	cv::Mat streamZoomer(cv::Mat* input);
-	int pixelZoom[2] = { 0, 0 };
 	int roiZoom[2] = { 0, 0 };
-	float scaleZoom = 1;
+	
 
 	// measure pointer, drawer and related parameters
 	void rulerPointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
