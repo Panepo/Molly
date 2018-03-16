@@ -83,5 +83,8 @@
     <ClCompile Include="funcGeometry3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="appFuncMeasurer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

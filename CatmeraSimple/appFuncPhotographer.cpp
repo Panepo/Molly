@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "app.h"
 
+#define DIST_FAR	150
+#define DIST_NEAR	100
+
 auto gen_element = [](int erosion_size)
 {
 	return getStructuringElement(cv::MORPH_RECT,
@@ -19,6 +22,14 @@ auto create_mask_from_depth = [&](cv::Mat& depth, int thresh, cv::ThresholdTypes
 	cv::erode(depth, depth, erode_more);
 };
 
+auto createMask = [&](cv::Mat& depth, int thresh, cv::ThresholdTypes type, int iterDilate, int iterErode)
+{
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+	
+	cv::threshold(depth, depth, thresh, 255, type);
+	cv::dilate(depth, depth, element, cv::Point(-1, -1), iterDilate);
+	cv::erode(depth, depth, element, cv::Point(-1, -1), iterErode);
+};
 
 // =================================================================================
 // Application minor private functions for aligner
@@ -27,6 +38,7 @@ auto create_mask_from_depth = [&](cv::Mat& depth, int thresh, cv::ThresholdTypes
 void app::photographerRenderer(cv::Mat * input, cv::Mat * depth)
 {
 	cv::Mat near = depth->clone();
+	cv::Mat mid = depth->clone();
 	cv::Mat far = depth->clone();
 
 	#pragma omp parallel sections
@@ -34,21 +46,28 @@ void app::photographerRenderer(cv::Mat * input, cv::Mat * depth)
 		#pragma omp section
 		{		
 			cv::cvtColor(near, near, CV_BGR2GRAY);
-			create_mask_from_depth(near, 180, cv::THRESH_BINARY);
+			createMask(near, DIST_NEAR, cv::THRESH_BINARY, 3, 10);
 		}
-		
+
+		#pragma omp section
+		{
+			cv::cvtColor(mid, mid, CV_BGR2GRAY);
+			createMask(mid, DIST_FAR, cv::THRESH_BINARY, 3, 6);
+		}
+
 		#pragma omp section
 		{	
 			cv::cvtColor(far, far, CV_BGR2GRAY);
 			far.setTo(255, far == 0);
-			create_mask_from_depth(far, 100, cv::THRESH_BINARY_INV);
+			createMask(far, DIST_FAR, cv::THRESH_BINARY_INV, 3, 6);
 		}
 	}
 
 	cv::Mat mask;
 	mask.create(near.size(), CV_8UC1);
-	mask.setTo(cv::Scalar::all(cv::GC_BGD)); 
-	mask.setTo(cv::GC_PR_BGD, far == 0);
+	mask.setTo(cv::Scalar::all(0)); 	
+	//mask.setTo(cv::GC_PR_BGD, far == 0);
+	mask.setTo(cv::GC_PR_FGD, mid == 255);
 	mask.setTo(cv::GC_FGD, near == 255);
 
 	cv::Mat bgModel, fgModel;

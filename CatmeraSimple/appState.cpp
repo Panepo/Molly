@@ -151,6 +151,36 @@ void app::stateScanner()
 	}
 }
 
+void app::stateMeasurer()
+{
+	rs2::frameset data = pipeline.wait_for_frames();
+
+	if (stream & EnableColor)
+	{
+		rs2::align alignTo(RS2_STREAM_COLOR);
+		rs2::frameset alignedFrame = alignTo.process(data);
+
+		cv::Mat colorMat = funcFormat::frame2Mat(alignedFrame.get_color_frame());
+		rs2::depth_frame depth = alignedFrame.get_depth_frame();
+		depth = filterSpat.process(depth);
+		depth = filterTemp.process(depth);
+
+		postMeasurer(&colorMat, &depth);
+	}
+	else
+	{
+		rs2::align alignTo(RS2_STREAM_INFRARED);
+		rs2::frameset alignedFrame = alignTo.process(data);
+
+		cv::Mat infraredMat = funcFormat::frame2Mat(alignedFrame.first(RS2_STREAM_INFRARED));
+		rs2::depth_frame depth = alignedFrame.get_depth_frame();
+		depth = filterSpat.process(depth);
+		depth = filterTemp.process(depth);
+
+		postMeasurer(&infraredMat, &depth);
+	}
+}
+
 // =================================================================================
 // Application major private functions
 // =================================================================================
@@ -203,6 +233,20 @@ void app::postScanner(cv::Mat * input, rs2::depth_frame * depth)
 {
 	outputMat = streamZoomer(input);
 	scannerDrawerBlur(&outputMat, depth, &intrinsics);
+
+	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
+
+	std::ostringstream strs;
+	strs << elapsedAvg;
+	std::string str = strs.str() + " ms " + distText;
+	streamInfoer(&outputMat, str);
+}
+
+void app::postMeasurer(cv::Mat * input, rs2::depth_frame * depth)
+{
+	outputMat = streamZoomer(input);
+
+	measurerMain(&outputMat, depth, &intrinsics, mstate);
 
 	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
 

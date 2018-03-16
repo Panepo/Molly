@@ -27,7 +27,16 @@ typedef enum appState
 	APPSTATE_RULER,
 	APPSTATE_PHOTOGRAPHER,
 	APPSTATE_SCANNER,
+	APPSTATE_MEASURER,
 } appState;
+
+typedef enum measurerState
+{
+	MEASURER_INIT,
+	MEASURER_PAINT,
+	MEASURER_CALC,
+	MEASURER_RESET,
+} measurerState;
 
 class app
 {
@@ -78,6 +87,7 @@ private:
 	void stateRuler();
 	void statePhotographer();
 	void stateScanner();
+	void stateMeasurer();
 
 	// events
 	//void eventKeyboard();
@@ -89,6 +99,7 @@ private:
 	void postRuler(cv::Mat* input, rs2::depth_frame* depth);
 	void postPhotographer(cv::Mat* input, cv::Mat * depth);
 	void postScanner(cv::Mat* input, rs2::depth_frame* depth);
+	void postMeasurer(cv::Mat* input, rs2::depth_frame* depth);
 	
 	// stream pointer and related parameters
 	void streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics* intrin, float point[3]);
@@ -116,6 +127,12 @@ private:
 	void scannerDrawerBlur(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	void scannerDrawerSharp(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	void scannerDrawerGaze(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
+
+	measurerState mstate = MEASURER_INIT;
+	cv::Mat measurerMask;
+	void measurerMain(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin, measurerState& mstate);
+	void measurerPaint(cv::Mat* input);
+	void measurerCalc(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 };
 
 

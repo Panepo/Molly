@@ -67,10 +67,11 @@ void app::scannerDrawerBlur(cv::Mat * input, const rs2::depth_frame * depth, con
 					heightMod = (float)(size.height - 100);
 
 				cv::Size sizeMap = cv::Size((int)(size.width / 4), (int)heightMod);
-				cv::Mat output;
-				funcOpenCV::addMinimapRD(*input, warped, output, sizeMap, scanMapSize, scanMapColor);		
-				*input = output.clone();
-				cv::drawContours(*input, contours, i, scanRectColor, scanRectSize);
+				cv::Mat overlay;
+				funcOpenCV::addMinimapRD(*input, warped, overlay, sizeMap, scanMapSize, scanMapColor);
+				*input = overlay.clone();
+				cv::drawContours(overlay, contours, i, scanRectColor, scanRectSize);
+				cv::addWeighted(overlay, transparentP, *input, transparentO, 0, *input);
 			}
 			break;
 		}
@@ -112,16 +113,18 @@ void app::scannerDrawerBlur(cv::Mat * input, const rs2::depth_frame * depth, con
 					heightMod = (float)(size.height - 100);
 				
 				cv::Size sizeMap = cv::Size((int)(size.width / 4), (int)heightMod);
-				cv::Mat output;
-				funcOpenCV::addMinimapRD(*input, warped, output, sizeMap, scanMapSize, scanMapColor);
-				*input = output.clone();
+				cv::Mat overlay;
+				funcOpenCV::addMinimapRD(*input, warped, overlay, sizeMap, scanMapSize, scanMapColor);
+				*input = overlay.clone();
 
-				cv::drawContours(*input, contours, i, scanRectColor, scanRectSize);
+				cv::drawContours(overlay, contours, i, scanRectColor, scanRectSize);
 
-				cv::line(*input, corners[0], corners[1], sectionColor, scanRectSize);
-				cv::line(*input, corners[1], corners[2], sectionColor, scanRectSize);
-				cv::line(*input, corners[2], corners[3], sectionColor, scanRectSize);
-				cv::line(*input, corners[3], corners[0], sectionColor, scanRectSize);
+				cv::line(overlay, corners[0], corners[1], sectionColor, scanRectSize);
+				cv::line(overlay, corners[1], corners[2], sectionColor, scanRectSize);
+				cv::line(overlay, corners[2], corners[3], sectionColor, scanRectSize);
+				cv::line(overlay, corners[3], corners[0], sectionColor, scanRectSize);
+
+				cv::addWeighted(overlay, transparentP, *input, transparentO, 0, *input);
 			}
 			break;
 		}	
@@ -398,3 +401,5 @@ void app::scannerDrawerGaze(cv::Mat * input, const rs2::depth_frame * depth, con
 	cv::rectangle(*input, gazeRoi, scanGazeColor, scanGazeSize);
 #endif
 }
+
+

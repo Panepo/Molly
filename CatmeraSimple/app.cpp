@@ -75,6 +75,9 @@ void app::cameraProcess()
 	case APPSTATE_SCANNER:
 		stateScanner();
 		break;
+	case APPSTATE_MEASURER:
+		stateMeasurer();
+		break;
 	default:
 		state = APPSTATE_EXIT;
 		break;
@@ -186,6 +189,16 @@ void app::eventMouseCV(int event, int x, int y, int flags, int wheel)
 					pixelA[1] = (float)DepthHeight - 1;
 			}
 			break;
+		case APPSTATE_MEASURER:
+			switch (mstate)
+			{
+			case MEASURER_PAINT:
+				cv::circle(measurerMask, cv::Point((int)x, (int)y), measurerSize, cv::Scalar::all(255), -1);
+				break;
+			default:
+				break;
+			}
+			break;
 		}
 		break;
 	case CV_EVENT_RBUTTONDOWN:
@@ -229,17 +242,17 @@ void app::eventMouseCV(int event, int x, int y, int flags, int wheel)
 			
 			if (scaleZoom == 1)
 			{
-				pos[0] = x;
-				pos[1] = y;
+				pos[0] = (float)x;
+				pos[1] = (float)y;
 			}
 			else
 			{
-				pos[0] = x * scaleZoom + roiZoom[0];
-				pos[1] = y * scaleZoom + roiZoom[1];
+				pos[0] = (float)x * scaleZoom + roiZoom[0];
+				pos[1] = (float)y * scaleZoom + roiZoom[1];
 			}
 			
-			pixelZoom[0] = pos[0];
-			pixelZoom[1] = pos[1];
+			pixelZoom[0] = (int)pos[0];
+			pixelZoom[1] = (int)pos[1];
 
 			if (wheel > 0 && scaleZoom < zoomerScaleMax)
 				scaleZoom += (float) 0.1;

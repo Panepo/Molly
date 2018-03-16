@@ -95,6 +95,7 @@ void eventKeyboard(appState& state, int stream, std::string windowTitle, cv::Mat
 		case APPSTATE_DEPTH:
 		case APPSTATE_RULER:
 		case APPSTATE_SCANNER:
+		case APPSTATE_MEASURER:
 			state = APPSTATE_PHOTOGRAPHER;
 			break;
 		case APPSTATE_PHOTOGRAPHER:
@@ -116,6 +117,7 @@ void eventKeyboard(appState& state, int stream, std::string windowTitle, cv::Mat
 		case APPSTATE_DEPTH:
 		case APPSTATE_PHOTOGRAPHER:
 		case APPSTATE_SCANNER:
+		case APPSTATE_MEASURER:
 			state = APPSTATE_RULER;
 			break;
 		case APPSTATE_RULER:
@@ -137,6 +139,7 @@ void eventKeyboard(appState& state, int stream, std::string windowTitle, cv::Mat
 		case APPSTATE_DEPTH:
 		case APPSTATE_PHOTOGRAPHER:
 		case APPSTATE_RULER:
+		case APPSTATE_MEASURER:
 			state = APPSTATE_SCANNER;
 			break;
 		case APPSTATE_SCANNER:
@@ -160,6 +163,27 @@ void eventKeyboard(appState& state, int stream, std::string windowTitle, cv::Mat
 		std::string str = windowTitle + "_" + oss.str() + ".jpg";
 		cv::imwrite(str, outputMat);
 		std::cout << "file saved: " << str << std::endl;
+	}
+	else if (key == 'c' || key == 'C')
+	{
+		switch (state)
+		{
+		case APPSTATE_COLOR:
+		case APPSTATE_INFRARED:
+		case APPSTATE_DEPTH:
+		case APPSTATE_PHOTOGRAPHER:
+		case APPSTATE_RULER:
+			state = APPSTATE_MEASURER;
+			break;
+		case APPSTATE_MEASURER:
+			if (stream & EnableColor)
+				state = APPSTATE_COLOR;
+			else if (stream & EnableInfrared)
+				state = APPSTATE_INFRARED;
+			break;
+		default:
+			break;
+		}
 	}
 
 

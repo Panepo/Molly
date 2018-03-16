@@ -9,6 +9,7 @@
 
 void app::rulerPointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin)
 {
+	cv::Mat overlay = input->clone();
 	float posA[2], posB[2];
 
 	if (scaleZoom == 1)
@@ -26,11 +27,13 @@ void app::rulerPointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_
 		posB[1] = pixelB[1] * scaleZoom + roiZoom[1];
 	}
 
-	cv::circle(*input, cv::Point((int)pixel[0], (int)pixel[1]), pointerSize, pointerColor, -1);
-	cv::circle(*input, cv::Point((int)pixelA[0], (int)pixelA[1]), measureSize, measureColor, 2);
-	cv::circle(*input, cv::Point((int)pixelB[0], (int)pixelB[1]), measureSize, measureColor, 2);
-	cv::line(*input, cv::Point((int)pixelA[0], (int)pixelA[1]),
+	cv::circle(overlay, cv::Point((int)pixel[0], (int)pixel[1]), pointerSize, pointerColor, -1);
+	cv::circle(overlay, cv::Point((int)pixelA[0], (int)pixelA[1]), measureSize, measureColor, 2);
+	cv::circle(overlay, cv::Point((int)pixelB[0], (int)pixelB[1]), measureSize, measureColor, 2);
+	cv::line(overlay, cv::Point((int)pixelA[0], (int)pixelA[1]),
 		cv::Point((int)pixelB[0], (int)pixelB[1]), measureColor, 2);
+
+	cv::addWeighted(overlay, transparentP, *input, transparentO, 0, *input);
 
 	float dist = funcGeometry3D::calcDist3D(posA, posB, depth, intrin);
 

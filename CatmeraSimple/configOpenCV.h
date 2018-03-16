@@ -2,6 +2,9 @@
 #ifndef CONFIGOPENCV_H
 #define CONFIGOPENCV_H
 
+#define transparentP	0.4
+#define transparentO	(1 - transparentP)
+
 #define pointerSize		5
 #define pointerColor	cv::Scalar(255, 255, 255)	// white
 #define pointerFontA	cv::FONT_HERSHEY_DUPLEX
@@ -37,6 +40,8 @@
 #define scanGazeColor	cv::Scalar(0, 255,255)		// yellow
 #define scanGazeSize	1
 #define scanGazeRect	5
+
+#define measurerSize	25
 
 #endif // !CONFIGOPENCV_H
 
