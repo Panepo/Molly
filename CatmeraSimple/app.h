@@ -34,6 +34,7 @@ typedef enum measurerState
 {
 	MEASURER_INIT,
 	MEASURER_PAINT,
+	MEASURER_RECT,
 	MEASURER_CALC,
 	MEASURER_RESET,
 } measurerState;
@@ -91,7 +92,8 @@ private:
 
 	// events
 	//void eventKeyboard();
-	//static void eventMouseS(int event, int x, int y, int flags, void* userdata);
+	static void eventMouseS(int event, int x, int y, int flags, void* userdata);
+	void eventMouse(int event, int x, int y, int flags);
 	
 
 	// stream post processing

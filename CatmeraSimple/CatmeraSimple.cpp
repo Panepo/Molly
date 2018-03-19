@@ -32,7 +32,7 @@ int main(int argc, char * argv[]) try
 	catmera.cameraInitial();
 	
 	cv::namedWindow(appTitle, cv::WINDOW_AUTOSIZE);
-	cv::setMouseCallback(appTitle, eventMouse, NULL);
+	//cv::setMouseCallback(appTitle, eventMouse, NULL);
 
 	while (catmera.state)
 	{
@@ -40,11 +40,11 @@ int main(int argc, char * argv[]) try
 		cv::imshow(appTitle, catmera.outputMat);
 		eventKeyboard(catmera.state, catmera.stream, appTitle, catmera.outputMat);
 
-		if (mouse.trigger)
+		/*if (mouse.trigger)
 		{
 			catmera.eventMouseCV(mouse.event, mouse.x, mouse.y, mouse.flags, mouse.wheel);
 			mouse.trigger = false;
-		}
+		}*/
 	}
 
 	return EXIT_SUCCESS;

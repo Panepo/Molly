@@ -26,8 +26,9 @@ void app::streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics*
 	rs2_deproject_pixel_to_point(point, intrin, pos, depthPixel * 1000);
 
 	cv::circle(*input, cv::Point((int)pixel[0], (int)pixel[1]), pointerSize, pointerColor, -1);
-	std::string text = std::to_string((int)point[0]) + " " + std::to_string((int)point[1])
-		+ " " + std::to_string((int)point[2]);
+	//std::string text = std::to_string((int)point[0]) + " " + std::to_string((int)point[1])
+	//	+ " " + std::to_string((int)point[2]);
+	std::string text = std::to_string((int)point[2]) + "mm";
 
 	cv::putText(*input, text, cv::Point((int)pixel[0] - 100, (int)pixel[1] + 40), pointerFontA,
 		1, pointerColorFA, 1, cv::LINE_AA);
