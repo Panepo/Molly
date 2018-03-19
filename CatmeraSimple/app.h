@@ -131,10 +131,14 @@ private:
 	void scannerDrawerGaze(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 
 	measurerState mstate = MEASURER_INIT;
-	cv::Mat measurerMask;
 	void measurerMain(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin, measurerState& mstate);
+	void measurerInit();
+	void measurerReset();
 	void measurerPaint(cv::Mat* input);
+	void measurerRect(cv::Mat * input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	void measurerCalc(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
+	cv::Point pixelMeasureA = { 0, 0 };
+	cv::Point pixelMeasureB = { 0, 0 };
 };
 
 

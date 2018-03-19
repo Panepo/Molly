@@ -3,7 +3,7 @@
 
 namespace funcGeometry3D
 {
-	float calcDist3D(float pixelA[3], float pixelB[3], const rs2::depth_frame* depth, const rs2_intrinsics* intrin)
+	float calcDist3D(float pixelA[2], float pixelB[2], const rs2::depth_frame* depth, const rs2_intrinsics* intrin)
 	{
 		float pointA[3] = { 0, 0, 0 };
 		float pointB[3] = { 0, 0, 0 };

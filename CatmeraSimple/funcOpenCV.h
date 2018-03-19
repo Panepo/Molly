@@ -21,6 +21,8 @@ namespace funcOpenCV
 	inline bool compareDistance(std::pair<cv::Point, cv::Point> pixelA, std::pair<cv::Point, cv::Point> pixelB);
 	void orderPixels(std::vector<cv::Point> input, std::vector<cv::Point> &output);
 	void fourPointTransform(cv::Mat input, cv::Mat &output, std::vector<cv::Point> pixels);
+
+	bool contourSorter(std::vector<cv::Point> contour1, std::vector<cv::Point> contour2);
 }
 
 #endif // !FUNCOPENCV_H

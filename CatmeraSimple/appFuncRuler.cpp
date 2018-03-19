@@ -41,13 +41,12 @@ void app::rulerPointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_
 	strs << dist;
 	distText = strs.str() + "cm";
 
-	int textCoordX = (int)((pixelA[0] + pixelB[0]) / 2);
-	int textCoordY = (int)((pixelA[1] + pixelB[1]) / 2);
+	cv::Point textCoord;
+	textCoord.x = (int)((pixelA[0] + pixelB[0]) / 2);
+	textCoord.y = (int)((pixelA[1] + pixelB[1]) / 2);
 
-	cv::putText(*input, distText, cv::Point(textCoordX, textCoordY),
-		pointerFontA, 1, pointerColorFA, 1, cv::LINE_AA);
-	cv::putText(*input, distText, cv::Point(textCoordX, textCoordY),
-		pointerFontB, 1, pointerColorFB, 1, cv::LINE_AA);
+	cv::putText(*input, distText, textCoord, pointerFontA, 1, pointerColorFA, 1, cv::LINE_AA);
+	cv::putText(*input, distText, textCoord, pointerFontB, 1, pointerColorFB, 1, cv::LINE_AA);
 }
 
 void app::rulerDrawer(cv::Mat * input, const rs2::depth_frame * depth)

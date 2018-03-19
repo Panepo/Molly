@@ -5,13 +5,6 @@
 
 #define	ENABLE_GAZE	0
 
-bool contourSorter(std::vector<cv::Point> contour1, std::vector<cv::Point> contour2)
-{
-	double i = fabs(cv::contourArea(cv::Mat(contour1)));
-	double j = fabs(cv::contourArea(cv::Mat(contour2)));
-	return (i > j);
-}
-
 // =================================================================================
 // Application minor private functions for scanner
 // =================================================================================
@@ -33,7 +26,7 @@ void app::scannerDrawerBlur(cv::Mat * input, const rs2::depth_frame * depth, con
 	cv::GaussianBlur(inputGray, inputGray, cv::Size(7, 7), 0, 0);
 
 	cv::Mat inputEdge;
-	cv::Canny(inputGray, inputEdge, 50, 25, 3);
+	cv::Canny(inputGray, inputEdge, 50, 150, 3);
 
 	// =================================================================================
 	// =================================================================================
@@ -41,7 +34,7 @@ void app::scannerDrawerBlur(cv::Mat * input, const rs2::depth_frame * depth, con
 	std::vector<std::vector<cv::Point>> contours;
 	std::vector<cv::Vec4i> hierarchy;
 	cv::findContours(inputEdge, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
-	std::sort(contours.begin(), contours.end(), contourSorter);
+	std::sort(contours.begin(), contours.end(), funcOpenCV::contourSorter);
 
 	std::vector<cv::Point> approx;
 	for (int i = 0; i < (int)contours.size(); i += 1)
@@ -163,7 +156,7 @@ void app::scannerDrawerSharp(cv::Mat * input, const rs2::depth_frame * depth, co
 	std::vector<std::vector<cv::Point>> contours;
 	std::vector<cv::Vec4i> hierarchy;
 	cv::findContours(inputEdge, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
-	std::sort(contours.begin(), contours.end(), contourSorter);
+	std::sort(contours.begin(), contours.end(), funcOpenCV::contourSorter);
 
 	std::vector<cv::Point> approx;
 	for (int i = 0; i < (int)contours.size(); i += 1)
@@ -306,7 +299,7 @@ void app::scannerDrawerGaze(cv::Mat * input, const rs2::depth_frame * depth, con
 	std::vector<std::vector<cv::Point>> contours;
 	std::vector<cv::Vec4i> hierarchy;
 	cv::findContours(inputEdge, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
-	std::sort(contours.begin(), contours.end(), contourSorter);
+	std::sort(contours.begin(), contours.end(), funcOpenCV::contourSorter);
 
 	std::vector<cv::Point> approx;
 	for (int i = 0; i < (int)contours.size(); i += 1)
@@ -358,7 +351,7 @@ void app::scannerDrawerGaze(cv::Mat * input, const rs2::depth_frame * depth, con
 		else if ((int)approx.size() >= 5 || (int)approx.size() <= 6)
 		{
 			cv::Mat warped;
-			funcOpenCV::fourPointTransform(*input, warped, approx);
+			//funcOpenCV::fourPointTransform(*input, warped, approx);
 
 			cv::RotatedRect boundingBox = cv::minAreaRect(contours[i]);
 			cv::Point2f corners[4];

@@ -41,7 +41,16 @@
 #define scanGazeSize	1
 #define scanGazeRect	5
 
-#define measurerSize	25
+#define measRectColor1	cv::Scalar(0, 255,255)		// yellow
+#define measRectSize1	1
+#define measRectColor2	cv::Scalar(0, 255,0)		// green
+#define measRectSize2	2
+#define measContColor	cv::Scalar(255,255,0)		// teal
+#define measContSize	2
+#define measApproxMin	4
+#define measApproxMax	10
+#define measLineColor	cv::Scalar(0, 255,255)		// yellow
+#define measLineSize	2
 
 #endif // !CONFIGOPENCV_H
 

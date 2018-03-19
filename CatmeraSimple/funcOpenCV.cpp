@@ -94,4 +94,11 @@ namespace funcOpenCV
 		cv::Mat matrix = cv::getPerspectiveTransform(rectOrig, rectOutput);
 		cv::warpPerspective(input, output, matrix, cv::Size((int)widthMax, (int)heightMax));
 	}
+
+	bool contourSorter(std::vector<cv::Point> contour1, std::vector<cv::Point> contour2)
+	{
+		double i = fabs(cv::contourArea(cv::Mat(contour1)));
+		double j = fabs(cv::contourArea(cv::Mat(contour2)));
+		return (i > j);
+	}
 }
