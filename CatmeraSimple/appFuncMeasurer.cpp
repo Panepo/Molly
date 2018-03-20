@@ -72,46 +72,18 @@ void app::measurerRect(cv::Mat * input, const rs2::depth_frame* depth, const rs2
 			{
 				cv::drawContours(inputRoi, contours, i, measContColor, measContSize);
 
-				cv::RotatedRect boundingBox = cv::minAreaRect(contours[i]);
-				cv::Point2f corners[4];
-				boundingBox.points(corners);
-
-				float a1[2], a2[2], b1[2], b2[2];
-				a1[0] = (corners[0].x + corners[1].x) / 2;
-				a2[0] = (corners[2].x + corners[3].x) / 2;
-				a1[1] = (corners[0].y + corners[1].y) / 2;
-				a2[1] = (corners[2].y + corners[3].y) / 2;
-
-				b1[0] = (corners[0].x + corners[3].x) / 2;
-				b2[0] = (corners[1].x + corners[2].x) / 2;
-				b1[1] = (corners[0].y + corners[3].y) / 2;
-				b2[1] = (corners[1].y + corners[2].y) / 2;
-
-				cv::line(inputRoi, cv::Point(a1[0], a1[1]), cv::Point(a2[0], a2[1]), measLineColor, measLineSize);
-				cv::line(inputRoi, cv::Point(b1[0], b1[1]), cv::Point(b2[0], b2[1]), measLineColor, measLineSize);
-
-				float distA = funcGeometry3D::calcDist3D(a1, a2, depth, intrin);
-				float distB = funcGeometry3D::calcDist3D(b1, b2, depth, intrin);
-				float area = floor(distA * distB * 100) / 100;
+				double area = funcGeometry3D::calcArea3D(contours[i], &inputRoi, depth, intrin, 
+					pixelMeasureA, measLineColor, measLineSize);
 
 				std::ostringstream strs;
 				strs << area;
 				distText = strs.str() + "cm2";
-
-
-
-				/*cv::line(inputRoi, corners[0], corners[1], measRectColor2, measLineSize);
-				cv::line(inputRoi, corners[1], corners[2], measRectColor2, measLineSize);
-				cv::line(inputRoi, corners[2], corners[3], measRectColor2, measLineSize);
-				cv::line(inputRoi, corners[3], corners[0], measRectColor2, measLineSize);*/
 
 				break;
 			}
 		}
 
 		inputRoi.copyTo(overlay(roi));
-
-		
 
 		cv::Point textCoord;
 		textCoord.x = pixelMeasureB.x + 10;
