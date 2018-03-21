@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "app.h"
 #include "funcGeometry2D.h"
+#include "funcGeometry3D.h"
 #include "funcOpenCV.h"
 
 #define	ENABLE_GAZE	0
@@ -51,9 +52,44 @@ void app::scannerDrawerBlur(cv::Mat * input, const rs2::depth_frame * depth, con
 				cv::Mat warped;
 				funcOpenCV::fourPointTransform(*input, warped, approx);
 
-				
-				cv::Size sizeW = warped.size();
+				float pixelA[2] = { approx[1].x, approx[1].y };
+				float pixelB[2] = { approx[0].x, approx[0].y };
+				float pixelC[2] = { approx[2].x, approx[2].y };
 
+				float distA = funcGeometry3D::calcDist3D(pixelA, pixelB, depth, intrin);
+				float distB = funcGeometry3D::calcDist3D(pixelA, pixelC, depth, intrin);
+
+				cv::Size sizeW = warped.size();
+				float mod;
+				if (distA > distB)
+				{
+					if (sizeW.width > sizeW.height)
+					{
+						mod = (float)sizeW.height * distA / distB;
+						cv::resize(warped, warped, cv::Size((int)mod, sizeW.height), 0, 0, CV_INTER_LINEAR);
+					}
+					else
+					{
+						mod = (float)sizeW.width * distA / distB;
+						cv::resize(warped, warped, cv::Size(sizeW.height, (int)mod), 0, 0, CV_INTER_LINEAR);
+					}
+				}
+				else
+				{
+					if (sizeW.width > sizeW.height)
+					{
+						mod = (float)sizeW.height * distB / distA;
+						cv::resize(warped, warped, cv::Size((int)mod, sizeW.height), 0, 0, CV_INTER_LINEAR);
+					}
+					else
+					{
+						mod = (float)sizeW.width * distB / distA;
+						cv::resize(warped, warped, cv::Size(sizeW.height, (int)mod), 0, 0, CV_INTER_LINEAR);
+					}
+				}
+
+				//cv::Size sizeW = warped.size();
+				sizeW = warped.size();
 				float heightMod = ((float)size.width / 4) * ((float)sizeW.height / (float)sizeW.width);
 
 				if (heightMod > size.height - 100)
@@ -98,7 +134,44 @@ void app::scannerDrawerBlur(cv::Mat * input, const rs2::depth_frame * depth, con
 
 				funcOpenCV::fourPointTransform(*input, warped, cornersV);
 				
+				float pixelA[2] = { approx[1].x, approx[1].y };
+				float pixelB[2] = { approx[0].x, approx[0].y };
+				float pixelC[2] = { approx[2].x, approx[2].y };
+
+				float distA = funcGeometry3D::calcDist3D(pixelA, pixelB, depth, intrin);
+				float distB = funcGeometry3D::calcDist3D(pixelA, pixelC, depth, intrin);
+
 				cv::Size sizeW = warped.size();
+				float mod;
+				if (distA > distB)
+				{
+					if (sizeW.width > sizeW.height)
+					{
+						mod = (float)sizeW.height * distA / distB;
+						cv::resize(warped, warped, cv::Size((int)mod, sizeW.height), 0, 0, CV_INTER_LINEAR);
+					}
+					else
+					{
+						mod = (float)sizeW.width * distA / distB;
+						cv::resize(warped, warped, cv::Size(sizeW.height, (int)mod), 0, 0, CV_INTER_LINEAR);
+					}
+				}
+				else
+				{
+					if (sizeW.width > sizeW.height)
+					{
+						mod = (float)sizeW.height * distB / distA;
+						cv::resize(warped, warped, cv::Size((int)mod, sizeW.height), 0, 0, CV_INTER_LINEAR);
+					}
+					else
+					{
+						mod = (float)sizeW.width * distB / distA;
+						cv::resize(warped, warped, cv::Size(sizeW.height, (int)mod), 0, 0, CV_INTER_LINEAR);
+					}
+				}
+				//cv::Size 
+					
+				sizeW = warped.size();
 				
 				float heightMod = ((float)size.width / 4) * ((float)sizeW.height / (float)sizeW.width);
 

@@ -23,26 +23,26 @@ void eventMouse(int event, int x, int y, int flags, void* param);
 
 int main(int argc, char * argv[]) try
 {
-	std::string appTitle = "Molly Catmera";
-	app catmera(appTitle);
+	std::string appTitle = "Kagome-Kagome";
+	app kagome(appTitle);
 	
-	catmera.setResolution(RS2_STREAM_COLOR, 1280, 720, 30);
-	catmera.setResolution(RS2_STREAM_DEPTH, 1280, 720, 30);
-	catmera.setVisualPreset("High Density");
-	catmera.cameraInitial();
+	kagome.setResolution(RS2_STREAM_COLOR, 1280, 720, 30);
+	kagome.setResolution(RS2_STREAM_DEPTH, 1280, 720, 30);
+	kagome.setVisualPreset("High Density");
+	kagome.cameraInitial();
 	
 	cv::namedWindow(appTitle, cv::WINDOW_AUTOSIZE);
 	//cv::setMouseCallback(appTitle, eventMouse, NULL);
 
-	while (catmera.state)
+	while (kagome.state)
 	{
-		catmera.cameraProcess();
-		cv::imshow(appTitle, catmera.outputMat);
-		eventKeyboard(catmera.state, catmera.stream, appTitle, catmera.outputMat);
+		kagome.cameraProcess();
+		cv::imshow(appTitle, kagome.outputMat);
+		eventKeyboard(kagome.state, kagome.stream, appTitle, kagome.outputMat);
 
 		/*if (mouse.trigger)
 		{
-			catmera.eventMouseCV(mouse.event, mouse.x, mouse.y, mouse.flags, mouse.wheel);
+			kagome.eventMouseCV(mouse.event, mouse.x, mouse.y, mouse.flags, mouse.wheel);
 			mouse.trigger = false;
 		}*/
 	}
