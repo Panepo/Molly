@@ -55,7 +55,7 @@ public:
 	appState state = APPSTATE_EXIT;
 	cv::Mat outputMat;
 
-	void eventMouseCV(int event, int x, int y, int flags, int wheel);
+	//void eventMouseCV(int event, int x, int y, int flags, int wheel);
 	float pixel[2] = { 0, 0 };
 	int pixelZoom[2] = { 0, 0 };
 	float scaleZoom = 1;
@@ -126,7 +126,7 @@ private:
 	// align renderer and related parameters
 	void photographerRenderer(cv::Mat* input, cv::Mat * depth);
 
-	void scannerDrawerBlur(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
+	void scannerDrawer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	void scannerDrawerSharp(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	void scannerDrawerGaze(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 

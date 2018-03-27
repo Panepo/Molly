@@ -10,24 +10,15 @@
 // Application minor private functions for scanner
 // =================================================================================
 
-void app::scannerDrawerBlur(cv::Mat * input, const rs2::depth_frame * depth, const rs2_intrinsics * intrin)
+void app::scannerDrawer(cv::Mat * input, const rs2::depth_frame * depth, const rs2_intrinsics * intrin)
 {
 	cv::Size size = input->size();
-	
-	cv::Mat inputGray;
-	cv::cvtColor(*input, inputGray, CV_RGB2GRAY);
 	
 	// =================================================================================
 	// TODO:: optimize scanner pre processing 
 	// =================================================================================
-
-	cv::Mat structuringElmt = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(4, 4));
-	morphologyEx(inputGray, inputGray, cv::MORPH_OPEN, structuringElmt);
-	morphologyEx(inputGray, inputGray, cv::MORPH_CLOSE, structuringElmt);
-	cv::GaussianBlur(inputGray, inputGray, cv::Size(7, 7), 0, 0);
-
 	cv::Mat inputEdge;
-	cv::Canny(inputGray, inputEdge, 50, 150, 3);
+	funcOpenCV::cannyBlur(*input, inputEdge, 50, 150);
 
 	// =================================================================================
 	// =================================================================================
@@ -87,9 +78,10 @@ void app::scannerDrawerBlur(cv::Mat * input, const rs2::depth_frame * depth, con
 						cv::resize(warped, warped, cv::Size(sizeW.height, (int)mod), 0, 0, CV_INTER_LINEAR);
 					}
 				}
+				sizeW = warped.size();
 
 				//cv::Size sizeW = warped.size();
-				sizeW = warped.size();
+				
 				float heightMod = ((float)size.width / 4) * ((float)sizeW.height / (float)sizeW.width);
 
 				if (heightMod > size.height - 100)

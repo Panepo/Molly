@@ -101,4 +101,40 @@ namespace funcOpenCV
 		double j = fabs(cv::contourArea(cv::Mat(contour2)));
 		return (i > j);
 	}
+	
+	void cannyBlur(cv::Mat &input, cv::Mat &output, double threshold1, double threshold2)
+	{
+		cv::Mat inputGray;
+		cv::cvtColor(input, inputGray, CV_RGB2GRAY);
+		
+		cv::Mat structuringElmt = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(4, 4));
+		morphologyEx(inputGray, inputGray, cv::MORPH_OPEN, structuringElmt);
+		morphologyEx(inputGray, inputGray, cv::MORPH_CLOSE, structuringElmt);
+		cv::GaussianBlur(inputGray, inputGray, cv::Size(7, 7), 0, 0);
+
+		cv::Mat inputEdge;
+		cv::Canny(inputGray, output, threshold1, threshold2, 3);
+
+		//cv::imshow("canny test", output);
+	}
+	
+	void cannySharp(cv::Mat & input, cv::Mat & output, double threshold1, double threshold2)
+	{
+		cv::Mat inputGray;
+		cv::cvtColor(input, inputGray, CV_RGB2GRAY);
+
+		cv::Mat structuringElmt = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3));
+		morphologyEx(inputGray, inputGray, cv::MORPH_OPEN, structuringElmt);
+		morphologyEx(inputGray, inputGray, cv::MORPH_CLOSE, structuringElmt);
+		cv::GaussianBlur(inputGray, inputGray, cv::Size(5, 5), 0, 0);
+
+		cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE();
+		clahe->setClipLimit(4);
+		clahe->apply(inputGray, inputGray);
+
+		cv::Mat inputEdge;
+		cv::Canny(inputGray, output, threshold1, threshold2, 3);
+
+		cv::imshow("canny test", output);
+	}
 }

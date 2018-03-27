@@ -50,11 +50,9 @@ void app::measurerRect(cv::Mat * input, const rs2::depth_frame* depth, const rs2
 
 	cv::Rect roi = cv::Rect(pixelMeasureA, pixelMeasureB);
 	cv::Mat inputRoi = overlay(roi);
-	cv::Mat inputRoiGray;
-	cv::cvtColor(inputRoi, inputRoiGray, CV_RGB2GRAY);
-	cv::GaussianBlur(inputRoiGray, inputRoiGray, cv::Size(7, 7), 0, 0);
 	cv::Mat inputRoiEdge;
-	cv::Canny(inputRoiGray, inputRoiEdge, 50, 150, 3);
+	funcOpenCV::cannyBlur(inputRoi, inputRoiEdge, 50, 150);
+	//funcOpenCV::cannySharp(inputRoi, inputRoiEdge, 50, 150);
 
 	std::vector<std::vector<cv::Point>> contours;
 	std::vector<cv::Vec4i> hierarchy;

@@ -23,6 +23,9 @@ namespace funcOpenCV
 	void fourPointTransform(cv::Mat input, cv::Mat &output, std::vector<cv::Point> pixels);
 
 	bool contourSorter(std::vector<cv::Point> contour1, std::vector<cv::Point> contour2);
+
+	void cannyBlur(cv::Mat &input, cv::Mat &output, double threshold1, double threshold2);
+	void cannySharp(cv::Mat &input, cv::Mat &output, double threshold1, double threshold2);
 }
 
 #endif // !FUNCOPENCV_H
