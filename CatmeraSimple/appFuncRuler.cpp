@@ -4,8 +4,35 @@
 #include "funcOpenCV.h"
 
 // =================================================================================
-// Application minor private functions for measurer
+// Application minor private functions for ruler
 // =================================================================================
+
+void app::rulerMain(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin, rulerState& rstate)
+{
+	//std::cout << rstate << std::endl;
+	switch (rstate)
+	{
+	case RULER_WAIT:
+		break;
+	case RULER_PAINT:
+		rulerPaint(input);
+		break;
+	case RULER_LINE:
+		rulerPointer(input, depth, intrin);
+		rulerDrawer(input, depth);
+		break;
+	default:
+		break;
+	}
+}
+
+void app::rulerPaint(cv::Mat * input)
+{
+	cv::Mat overlay = input->clone();
+	cv::line(overlay, pixelRulerA, pixelRulerB, rulerLineColor, rulerLineSize1);
+	cv::addWeighted(overlay, transparentP, *input, transparentO, 0, *input);
+}
+
 
 void app::rulerPointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin)
 {
@@ -14,24 +41,23 @@ void app::rulerPointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_
 
 	if (scaleZoom == 1)
 	{
-		posA[0] = pixelA[0];
-		posA[1] = pixelA[1];
-		posB[0] = pixelB[0];
-		posB[1] = pixelB[1];
+		posA[0] = (float)pixelRulerA.x;
+		posA[1] = (float)pixelRulerA.y;
+		posB[0] = (float)pixelRulerB.x;
+		posB[1] = (float)pixelRulerB.y;
 	}
 	else
 	{
-		posA[0] = pixelA[0] * scaleZoom + roiZoom[0];
-		posA[1] = pixelA[1] * scaleZoom + roiZoom[1];
-		posB[0] = pixelB[0] * scaleZoom + roiZoom[0];
-		posB[1] = pixelB[1] * scaleZoom + roiZoom[1];
+		posA[0] = (float)pixelRulerA.x * scaleZoom + roiZoom[0];
+		posA[1] = (float)pixelRulerA.y * scaleZoom + roiZoom[1];
+		posB[0] = (float)pixelRulerB.x * scaleZoom + roiZoom[0];
+		posB[1] = (float)pixelRulerB.y * scaleZoom + roiZoom[1];
 	}
 
-	cv::circle(overlay, cv::Point((int)pixel[0], (int)pixel[1]), pointerSize, pointerColor, -1);
-	cv::circle(overlay, cv::Point((int)pixelA[0], (int)pixelA[1]), measureSize, measureColor, 2);
-	cv::circle(overlay, cv::Point((int)pixelB[0], (int)pixelB[1]), measureSize, measureColor, 2);
-	cv::line(overlay, cv::Point((int)pixelA[0], (int)pixelA[1]),
-		cv::Point((int)pixelB[0], (int)pixelB[1]), measureColor, 2);
+	//cv::circle(overlay, cv::Point((int)pixel[0], (int)pixel[1]), pointerSize, pointerColor, -1);
+	cv::circle(overlay, pixelRulerA, rulerPointSize, rulerPointColor, 2);
+	cv::circle(overlay, pixelRulerB, rulerPointSize, rulerPointColor, 2);
+	cv::line(overlay, pixelRulerA, pixelRulerB, rulerPointColor, rulerLineSize2);
 
 	cv::addWeighted(overlay, transparentP, *input, transparentO, 0, *input);
 
@@ -42,8 +68,8 @@ void app::rulerPointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_
 	distText = strs.str() + "cm";
 
 	cv::Point textCoord;
-	textCoord.x = (int)((pixelA[0] + pixelB[0]) / 2);
-	textCoord.y = (int)((pixelA[1] + pixelB[1]) / 2);
+	textCoord.x = (pixelRulerA.x + pixelRulerB.x) / 2;
+	textCoord.y = (pixelRulerA.y + pixelRulerB.y) / 2;
 
 	cv::putText(*input, distText, textCoord, pointerFontA, 1, pointerColorFA, 1, cv::LINE_AA);
 	cv::putText(*input, distText, textCoord, pointerFontB, 1, pointerColorFB, 1, cv::LINE_AA);
@@ -55,17 +81,17 @@ void app::rulerDrawer(cv::Mat * input, const rs2::depth_frame * depth)
 
 	if (scaleZoom == 1)
 	{
-		posA[0] = pixelA[0];
-		posA[1] = pixelA[1];
-		posB[0] = pixelB[0];
-		posB[1] = pixelB[1];
+		posA[0] = (float)pixelRulerA.x;
+		posA[1] = (float)pixelRulerA.y;
+		posB[0] = (float)pixelRulerB.x;
+		posB[1] = (float)pixelRulerB.y;
 	}
 	else
 	{
-		posA[0] = pixelA[0] * scaleZoom + roiZoom[0];
-		posA[1] = pixelA[1] * scaleZoom + roiZoom[1];
-		posB[0] = pixelB[0] * scaleZoom + roiZoom[0];
-		posB[1] = pixelB[1] * scaleZoom + roiZoom[1];
+		posA[0] = (float)pixelRulerA.x * scaleZoom + roiZoom[0];
+		posA[1] = (float)pixelRulerA.y * scaleZoom + roiZoom[1];
+		posB[0] = (float)pixelRulerB.x * scaleZoom + roiZoom[0];
+		posB[1] = (float)pixelRulerB.y * scaleZoom + roiZoom[1];
 	}
 
 	float xdiff = abs(posA[0] - posB[0]);

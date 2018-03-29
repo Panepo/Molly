@@ -41,10 +41,10 @@ void app::cameraInitial()
 
 	filterSpat.set_option(RS2_OPTION_HOLES_FILL, 5);
 
-	pixelA[0] = (float)ColorWidth * 3 / 5;
-	pixelA[1] = (float)ColorHeight / 2;
-	pixelB[0] = (float)ColorWidth * 2 / 5;
-	pixelB[1] = (float)ColorHeight / 2;
+	//pixelA[0] = (float)ColorWidth * 3 / 5;
+	//pixelA[1] = (float)ColorHeight / 2;
+	//pixelB[0] = (float)ColorWidth * 2 / 5;
+	//pixelB[1] = (float)ColorHeight / 2;
 
 	// Skips some frames to allow for auto-exposure stabilization
 	for (int i = 0; i < 10; i++) pipeline.wait_for_frames();
@@ -286,6 +286,30 @@ void app::eventMouseS(int event, int x, int y, int flags, void* userdata)
 void app::eventMouse(int event, int x, int y, int flags)
 {
 	float value;
+	int modx, mody;
+
+	if (stream & EnableColor)
+	{
+		if (x >= 0 && x <= ColorWidth)
+			modx = x;
+		else
+			modx = ColorWidth - 1;
+		if (y >= 0 && y <= ColorHeight)
+			mody = y;
+		else
+			mody = ColorHeight - 1;
+	}
+	else if (stream & EnableInfrared)
+	{
+		if (x >= 0 && x <= DepthWidth)
+			modx = x;
+		else
+			modx = DepthWidth - 1;
+		if (y >= 0 && y <= DepthHeight)
+			mody = y;
+		else
+			mody = DepthHeight - 1;
+	}
 
 	switch (event)
 	{
@@ -293,36 +317,23 @@ void app::eventMouse(int event, int x, int y, int flags)
 		switch (state)
 		{
 		case APPSTATE_COLOR:
-			if (x >= 0 && x <= ColorWidth)
-				pixel[0] = (float)x;
-			if (y >= 0 && y <= ColorHeight)
-				pixel[1] = (float)y;
 		case APPSTATE_INFRARED:
-			if (x >= 0 && x <= DepthWidth)
-				pixel[0] = (float)x;
-			if (y >= 0 && y <= DepthHeight)
-				pixel[1] = (float)y;
 		case APPSTATE_DEPTH:
+			pixel[0] = (float)modx;
+			pixel[1] = (float)mody;
+			break;
 		case APPSTATE_RULER:
-			if (stream & EnableColor)
+			if (rstate == RULER_PAINT)
 			{
-				if (x >= 0 && x <= ColorWidth)
-					pixel[0] = (float)x;
-				if (y >= 0 && y <= ColorHeight)
-					pixel[1] = (float)y;
+				pixelRulerB.x = modx;
+				pixelRulerB.y = mody;
 			}
-			else if (stream & EnableInfrared)
-			{
-				if (x >= 0 && x <= DepthWidth)
-					pixel[0] = (float)x;
-				if (y >= 0 && y <= DepthHeight)
-					pixel[1] = (float)y;
-			}
+			break;
 		case APPSTATE_MEASURER:
 			if (mstate == MEASURER_PAINT)
 			{
-				pixelMeasureB.x = x;
-				pixelMeasureB.y = y;
+				pixelMeasureB.x = modx;
+				pixelMeasureB.y = mody;
 			}
 			break;
 		default:
@@ -333,72 +344,29 @@ void app::eventMouse(int event, int x, int y, int flags)
 		switch (state)
 		{
 		case APPSTATE_RULER:
-			if (stream & EnableColor)
-			{
-				if (x >= 0 && x <= ColorWidth)
-					pixelA[0] = (float)x;
-				else
-					pixelA[0] = (float)ColorWidth - 1;
-				if (y >= 0 && y <= ColorHeight)
-					pixelA[1] = (float)y;
-				else
-					pixelA[1] = (float)ColorHeight - 1;
-			}
-			else if (stream & EnableInfrared)
-			{
-				if (x >= 0 && x <= DepthWidth)
-					pixelA[0] = (float)x;
-				else
-					pixelA[0] = (float)DepthWidth - 1;
-				if (y >= 0 && y <= DepthHeight)
-					pixelA[1] = (float)y;
-				else
-					pixelA[1] = (float)DepthHeight - 1;
-			}
+			rstate = RULER_PAINT;
+			pixelRulerA.x = modx;
+			pixelRulerA.y = mody;
+			pixelRulerB.x = modx;
+			pixelRulerB.y = mody;
 			break;
 		case APPSTATE_MEASURER:
 			mstate = MEASURER_PAINT;
-			pixelMeasureA.x = x;
-			pixelMeasureA.y = y;
-			pixelMeasureB.x = x;
-			pixelMeasureB.y = y;
+			pixelMeasureA.x = modx;
+			pixelMeasureA.y = mody;
+			pixelMeasureB.x = modx;
+			pixelMeasureB.y = mody;
 			break;
 		}
 		break;
 	case CV_EVENT_LBUTTONUP:
 		switch (state)
 		{
+		case APPSTATE_RULER:
+			rstate = RULER_LINE;
+			break;
 		case APPSTATE_MEASURER:
 			mstate = MEASURER_RECT;
-			break;
-		}
-		break;
-	case CV_EVENT_RBUTTONDOWN:
-		switch (state)
-		{
-		case APPSTATE_RULER:
-			if (stream & EnableColor)
-			{
-				if (x >= 0 && x <= ColorWidth)
-					pixelB[0] = (float)x;
-				else
-					pixelB[0] = (float)ColorWidth - 1;
-				if (y >= 0 && y <= ColorHeight)
-					pixelB[1] = (float)y;
-				else
-					pixelB[1] = (float)ColorHeight - 1;
-			}
-			else if (stream & EnableInfrared)
-			{
-				if (x >= 0 && x <= DepthWidth)
-					pixelB[0] = (float)x;
-				else
-					pixelB[0] = (float)DepthWidth - 1;
-				if (y >= 0 && y <= DepthHeight)
-					pixelB[1] = (float)y;
-				else
-					pixelB[1] = (float)DepthHeight - 1;
-			}
 			break;
 		}
 		break;
@@ -409,8 +377,8 @@ void app::eventMouse(int event, int x, int y, int flags)
 		case APPSTATE_INFRARED:
 		case APPSTATE_DEPTH:
 		case APPSTATE_RULER:
-			pixelZoom[0] = x;
-			pixelZoom[1] = y;
+			pixelZoom[0] = modx;
+			pixelZoom[1] = mody;
 
 			value = (float)cv::getMouseWheelDelta(flags);
 			//std::cout << value << std::endl;

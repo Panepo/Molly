@@ -8,7 +8,7 @@ void app::measurerMain(cv::Mat* input, const rs2::depth_frame* depth, const rs2_
 	//std::cout << mstate << std::endl;
 	switch (mstate)
 	{
-	case MEASURER_INIT:
+	case MEASURER_WAIT:
 		break;
 	case MEASURER_PAINT:
 		measurerPaint(input);
@@ -16,25 +16,9 @@ void app::measurerMain(cv::Mat* input, const rs2::depth_frame* depth, const rs2_
 	case MEASURER_RECT:
 		measurerRect(input, depth, intrin);
 		break;
-	case MEASURER_CALC:
-		measurerCalc(input, depth, intrin);
-		break;
-	case MEASURER_RESET:
-		break;
 	default:
 		break;
 	}
-}
-
-void app::measurerInit()
-{
-
-	mstate = MEASURER_INIT;
-}
-
-void app::measurerReset()
-{
-
 }
 
 void app::measurerPaint(cv::Mat * input)
@@ -93,9 +77,5 @@ void app::measurerRect(cv::Mat * input, const rs2::depth_frame* depth, const rs2
 	
 	cv::rectangle(overlay, pixelMeasureA, pixelMeasureB, measRectColor2, measRectSize2);
 	cv::addWeighted(overlay, transparentP, *input, transparentO, 0, *input);
-}
-
-void app::measurerCalc(cv::Mat * input, const rs2::depth_frame * depth, const rs2_intrinsics * intrin)
-{
 }
 

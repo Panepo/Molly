@@ -30,13 +30,18 @@ typedef enum appState
 	APPSTATE_MEASURER,
 } appState;
 
+typedef enum rulerState
+{
+	RULER_WAIT,
+	RULER_PAINT,
+	RULER_LINE,
+} rulerState;
+
 typedef enum measurerState
 {
-	MEASURER_INIT,
+	MEASURER_WAIT,
 	MEASURER_PAINT,
 	MEASURER_RECT,
-	MEASURER_CALC,
-	MEASURER_RESET,
 } measurerState;
 
 class app
@@ -106,8 +111,6 @@ private:
 	// stream pointer and related parameters
 	void streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics* intrin, float point[3]);
 	
-	//float point[3] = { 0, 0, 0 };
-	
 	// stream infoer and related parameters
 	void streamInfoer(cv::Mat* input, std::string text);
 	
@@ -116,11 +119,14 @@ private:
 	int roiZoom[2] = { 0, 0 };
 	
 
-	// measure pointer, drawer and related parameters
+	// ruler pointer, drawer and related parameters
+	rulerState rstate = RULER_WAIT;
+	void rulerMain(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin, rulerState& rstate);
+	void rulerPaint(cv::Mat* input);
 	void rulerPointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	void rulerDrawer(cv::Mat* input, const rs2::depth_frame* depth);
-	float pixelA[2] = { 0, 0 };
-	float pixelB[2] = { 0, 0 };
+	cv::Point pixelRulerA = { 0, 0 };
+	cv::Point pixelRulerB = { 0, 0 };
 	std::string distText;
 
 	// align renderer and related parameters
@@ -130,13 +136,10 @@ private:
 	void scannerDrawerSharp(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	void scannerDrawerGaze(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 
-	measurerState mstate = MEASURER_INIT;
+	measurerState mstate = MEASURER_WAIT;
 	void measurerMain(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin, measurerState& mstate);
-	void measurerInit();
-	void measurerReset();
 	void measurerPaint(cv::Mat* input);
 	void measurerRect(cv::Mat * input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
-	void measurerCalc(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	cv::Point pixelMeasureA = { 0, 0 };
 	cv::Point pixelMeasureB = { 0, 0 };
 };

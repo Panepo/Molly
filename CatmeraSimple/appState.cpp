@@ -205,8 +205,7 @@ void app::postRuler(cv::Mat * input, rs2::depth_frame * depth)
 {
 	outputMat = streamZoomer(input);
 
-	rulerPointer(&outputMat, depth, &intrinsics);
-	rulerDrawer(&outputMat, depth);
+	rulerMain(&outputMat, depth, &intrinsics, rstate);
 
 	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
 

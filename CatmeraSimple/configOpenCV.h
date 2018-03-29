@@ -22,8 +22,11 @@
 #define zoomerMapSize	3
 #define zoomerMapColor  cv::Scalar(0, 255,0)		// green
 
-#define measureSize		10
-#define measureColor	cv::Scalar(0, 255,0)		// green
+#define rulerPointSize	10
+#define rulerLineSize1	1
+#define rulerLineSize2	2
+#define rulerLineColor	cv::Scalar(0, 255,255)		// yellow
+#define rulerPointColor	cv::Scalar(0, 255,0)		// green
 
 #define sectionHeight	720
 #define sectionPreSize	(sectionHeight / 10)
