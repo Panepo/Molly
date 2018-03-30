@@ -79,3 +79,42 @@ void app::measurerRect(cv::Mat * input, const rs2::depth_frame* depth, const rs2
 	cv::addWeighted(overlay, transparentP, *input, transparentO, 0, *input);
 }
 
+void app::measurerEventHandler(int event, int x, int y, int flags)
+{
+	float value;
+
+	switch (event)
+	{
+	case CV_EVENT_MOUSEMOVE:
+		if (mstate == MEASURER_PAINT)
+		{
+			pixelMeasureB.x = x;
+			pixelMeasureB.y = y;
+		}
+		break;
+	case CV_EVENT_LBUTTONDOWN:
+		mstate = MEASURER_PAINT;
+		pixelMeasureA.x = x;
+		pixelMeasureA.y = y;
+		pixelMeasureB.x = x;
+		pixelMeasureB.y = y;
+		break;
+	case CV_EVENT_LBUTTONUP:
+		mstate = MEASURER_RECT;
+		break;
+	case CV_EVENT_MOUSEWHEEL:
+		pixelZoom[0] = x;
+		pixelZoom[1] = y;
+
+		value = (float)cv::getMouseWheelDelta(flags);
+		//std::cout << value << std::endl;
+		if (value > 0 && scaleZoom < zoomerScaleMax)
+			scaleZoom += (float) 0.1;
+		else if (value < 0 && scaleZoom > zoomerScaleMin)
+			scaleZoom -= (float) 0.1;
+		break;
+	default:
+		break;
+	}
+}
+

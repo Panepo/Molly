@@ -285,7 +285,6 @@ void app::eventMouseS(int event, int x, int y, int flags, void* userdata)
 
 void app::eventMouse(int event, int x, int y, int flags)
 {
-	float value;
 	int modx, mody;
 
 	if (stream & EnableColor)
@@ -311,86 +310,21 @@ void app::eventMouse(int event, int x, int y, int flags)
 			mody = DepthHeight - 1;
 	}
 
-	switch (event)
+	switch (state)
 	{
-	case CV_EVENT_MOUSEMOVE:
-		switch (state)
-		{
-		case APPSTATE_COLOR:
-		case APPSTATE_INFRARED:
-		case APPSTATE_DEPTH:
-			pixel[0] = (float)modx;
-			pixel[1] = (float)mody;
-			break;
-		case APPSTATE_RULER:
-			if (rstate == RULER_PAINT)
-			{
-				pixelRulerB.x = modx;
-				pixelRulerB.y = mody;
-			}
-			break;
-		case APPSTATE_MEASURER:
-			if (mstate == MEASURER_PAINT)
-			{
-				pixelMeasureB.x = modx;
-				pixelMeasureB.y = mody;
-			}
-			break;
-		default:
-			break;
-		}
+	case APPSTATE_COLOR:
+	case APPSTATE_INFRARED:
+	case APPSTATE_DEPTH:
+		streamEventHandler(event, modx, mody, flags);
 		break;
-	case CV_EVENT_LBUTTONDOWN:
-		switch (state)
-		{
-		case APPSTATE_RULER:
-			rstate = RULER_PAINT;
-			pixelRulerA.x = modx;
-			pixelRulerA.y = mody;
-			pixelRulerB.x = modx;
-			pixelRulerB.y = mody;
-			break;
-		case APPSTATE_MEASURER:
-			mstate = MEASURER_PAINT;
-			pixelMeasureA.x = modx;
-			pixelMeasureA.y = mody;
-			pixelMeasureB.x = modx;
-			pixelMeasureB.y = mody;
-			break;
-		}
+	case APPSTATE_RULER:
+		rulerEventHandler(event, modx, mody, flags);
 		break;
-	case CV_EVENT_LBUTTONUP:
-		switch (state)
-		{
-		case APPSTATE_RULER:
-			rstate = RULER_LINE;
-			break;
-		case APPSTATE_MEASURER:
-			mstate = MEASURER_RECT;
-			break;
-		}
+	case APPSTATE_SCANNER:
+		scannerEventHandler(event, modx, mody, flags);
 		break;
-	case CV_EVENT_MOUSEWHEEL:
-		switch (state)
-		{
-		case APPSTATE_COLOR:
-		case APPSTATE_INFRARED:
-		case APPSTATE_DEPTH:
-		case APPSTATE_RULER:
-			pixelZoom[0] = modx;
-			pixelZoom[1] = mody;
-
-			value = (float)cv::getMouseWheelDelta(flags);
-			//std::cout << value << std::endl;
-			if (value > 0 && scaleZoom < zoomerScaleMax)
-				scaleZoom += (float) 0.1;
-			else if (value < 0 && scaleZoom > zoomerScaleMin)
-				scaleZoom -= (float) 0.1;
-			break;
-		default:
-			break;
-		}
-
+	case APPSTATE_MEASURER:
+		measurerEventHandler(event, modx, mody, flags);
 	default:
 		break;
 	}

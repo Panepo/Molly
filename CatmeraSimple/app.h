@@ -110,13 +110,13 @@ private:
 	
 	// stream pointer and related parameters
 	void streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics* intrin, float point[3]);
-	
 	// stream infoer and related parameters
 	void streamInfoer(cv::Mat* input, std::string text);
 	
 	// stream zoomer and related parameters
 	cv::Mat streamZoomer(cv::Mat* input);
 	int roiZoom[2] = { 0, 0 };
+	void streamEventHandler(int event, int x, int y, int flags);
 	
 
 	// ruler pointer, drawer and related parameters
@@ -125,6 +125,7 @@ private:
 	void rulerPaint(cv::Mat* input);
 	void rulerPointer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	void rulerDrawer(cv::Mat* input, const rs2::depth_frame* depth);
+	void rulerEventHandler(int event, int x, int y, int flags);
 	cv::Point pixelRulerA = { 0, 0 };
 	cv::Point pixelRulerB = { 0, 0 };
 	std::string distText;
@@ -135,11 +136,13 @@ private:
 	void scannerDrawer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	void scannerDrawerSharp(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	void scannerDrawerGaze(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
+	void scannerEventHandler(int event, int x, int y, int flags);
 
 	measurerState mstate = MEASURER_WAIT;
 	void measurerMain(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin, measurerState& mstate);
 	void measurerPaint(cv::Mat* input);
 	void measurerRect(cv::Mat * input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
+	void measurerEventHandler(int event, int x, int y, int flags);
 	cv::Point pixelMeasureA = { 0, 0 };
 	cv::Point pixelMeasureB = { 0, 0 };
 };

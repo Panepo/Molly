@@ -173,3 +173,42 @@ void app::rulerDrawer(cv::Mat * input, const rs2::depth_frame * depth)
 	}
 }
 
+void app::rulerEventHandler(int event, int x, int y, int flags)
+{
+	float value;
+	
+	switch (event)
+	{
+	case CV_EVENT_MOUSEMOVE:
+		if (rstate == RULER_PAINT)
+		{
+			pixelRulerB.x = x;
+			pixelRulerB.y = y;
+		}
+		break;
+	case CV_EVENT_LBUTTONDOWN:
+		rstate = RULER_PAINT;
+		pixelRulerA.x = x;
+		pixelRulerA.y = y;
+		pixelRulerB.x = x;
+		pixelRulerB.y = y;
+		break;
+	case CV_EVENT_LBUTTONUP:
+		rstate = RULER_LINE;
+		break;
+	case CV_EVENT_MOUSEWHEEL:
+		pixelZoom[0] = x;
+		pixelZoom[1] = y;
+
+		value = (float)cv::getMouseWheelDelta(flags);
+		//std::cout << value << std::endl;
+		if (value > 0 && scaleZoom < zoomerScaleMax)
+			scaleZoom += (float) 0.1;
+		else if (value < 0 && scaleZoom > zoomerScaleMin)
+			scaleZoom -= (float) 0.1;
+		break;
+	default:
+		break;
+	}
+}
+
