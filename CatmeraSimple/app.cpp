@@ -325,6 +325,7 @@ void app::eventMouse(int event, int x, int y, int flags)
 		break;
 	case APPSTATE_MEASURER:
 		measurerEventHandler(event, modx, mody, flags);
+		break;
 	default:
 		break;
 	}

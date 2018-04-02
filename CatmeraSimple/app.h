@@ -134,8 +134,7 @@ private:
 	void photographerRenderer(cv::Mat* input, cv::Mat * depth);
 
 	void scannerDrawer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
-	void scannerDrawerSharp(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
-	void scannerDrawerGaze(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
+	void scannerProcess(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	void scannerEventHandler(int event, int x, int y, int flags);
 
 	measurerState mstate = MEASURER_WAIT;
