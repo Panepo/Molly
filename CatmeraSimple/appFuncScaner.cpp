@@ -10,20 +10,24 @@
 
 void app::scannerDrawer(cv::Mat * input, const rs2::depth_frame * depth, const rs2_intrinsics * intrin)
 {
-	cv::Size size = input->size();
-	
 	// =================================================================================
 	// TODO:: optimize scanner pre processing 
 	// =================================================================================
 	cv::Mat inputEdge;
 	funcOpenCV::cannyBlur(*input, inputEdge, 50, 150);
-
 	// =================================================================================
 	// =================================================================================
 
+	scannerProcess(input, &inputEdge, depth, intrin);
+
+}
+
+void app::scannerProcess(cv::Mat* input, cv::Mat* inputEdge, const rs2::depth_frame* depth, const rs2_intrinsics* intrin)
+{
+	cv::Size size = input->size();
 	std::vector<std::vector<cv::Point>> contours;
 	std::vector<cv::Vec4i> hierarchy;
-	cv::findContours(inputEdge, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+	cv::findContours(*inputEdge, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
 	std::sort(contours.begin(), contours.end(), funcOpenCV::contourSorter);
 
 	std::vector<cv::Point> approx;
@@ -31,11 +35,11 @@ void app::scannerDrawer(cv::Mat * input, const rs2::depth_frame * depth, const r
 	{
 		if (cv::contourArea(contours[i]) <= scanMinArea)
 			break;
-		
+
 		cv::approxPolyDP(contours[i], approx, cv::arcLength(contours[i], true) * 0.01, true);
-		
+
 		if ((int)approx.size() == 4)
-		{			
+		{
 			if (funcGeometry2D::checkAspectRatio2D(approx[1], approx[0], approx[2], 4))
 			{
 				cv::Mat warped;
@@ -79,7 +83,7 @@ void app::scannerDrawer(cv::Mat * input, const rs2::depth_frame * depth, const r
 				sizeW = warped.size();
 
 				//cv::Size sizeW = warped.size();
-				
+
 				float heightMod = ((float)size.width / 4) * ((float)sizeW.height / (float)sizeW.width);
 
 				if (heightMod > size.height - 100)
@@ -98,7 +102,7 @@ void app::scannerDrawer(cv::Mat * input, const rs2::depth_frame * depth, const r
 		{
 			cv::Mat warped;
 			funcOpenCV::fourPointTransform(*input, warped, approx);
-			
+
 			cv::RotatedRect boundingBox = cv::minAreaRect(contours[i]);
 			cv::Point2f corners[4];
 			boundingBox.points(corners);
@@ -110,7 +114,7 @@ void app::scannerDrawer(cv::Mat * input, const rs2::depth_frame * depth, const r
 					cornersV.push_back(corners[j]);
 
 				funcOpenCV::fourPointTransform(*input, warped, cornersV);
-				
+
 				float pixelA[2] = { approx[1].x, approx[1].y };
 				float pixelB[2] = { approx[0].x, approx[0].y };
 				float pixelC[2] = { approx[2].x, approx[2].y };
@@ -147,14 +151,14 @@ void app::scannerDrawer(cv::Mat * input, const rs2::depth_frame * depth, const r
 					}
 				}
 				//cv::Size 
-					
+
 				sizeW = warped.size();
-				
+
 				float heightMod = ((float)size.width / 4) * ((float)sizeW.height / (float)sizeW.width);
 
 				if (heightMod > size.height - 100)
 					heightMod = (float)(size.height - 100);
-				
+
 				cv::Size sizeMap = cv::Size((int)(size.width / 4), (int)heightMod);
 				cv::Mat overlay;
 				funcOpenCV::addMinimapRD(*input, warped, overlay, sizeMap, scanMapSize, scanMapColor);
@@ -170,12 +174,8 @@ void app::scannerDrawer(cv::Mat * input, const rs2::depth_frame * depth, const r
 				cv::addWeighted(overlay, transparentP, *input, transparentO, 0, *input);
 			}
 			break;
-		}	
+		}
 	}
-}
-
-void app::scannerProcess(cv::Mat * input, const rs2::depth_frame * depth, const rs2_intrinsics * intrin)
-{
 }
 
 void app::scannerEventHandler(int event, int x, int y, int flags)

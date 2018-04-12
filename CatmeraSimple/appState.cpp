@@ -187,70 +187,85 @@ void app::stateMeasurer()
 
 void app::postStreamer(cv::Mat* input, rs2::depth_frame* depth)
 {
+	begin = clock();
 	outputMat = streamZoomer(input);
 
 	float point[3] = { 0, 0, 0 };
 	streamPointer(&outputMat, depth, &intrinsics, point);
 
+	end = clock();
+	elapsed = double(end - begin) * 1000000 / CLOCKS_PER_SEC;
 	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
 
 	std::ostringstream strs;
 	strs << elapsedAvg;
-	std::string str = strs.str() + " ms (" + std::to_string((int)point[0]) + " "
+	std::string str = strs.str() + " us (" + std::to_string((int)point[0]) + " "
 		+ std::to_string((int)point[1]) + " " + std::to_string((int)point[2]) + ")";
 	streamInfoer(&outputMat, str);
 }
 
 void app::postRuler(cv::Mat * input, rs2::depth_frame * depth)
 {
+	begin = clock();
 	outputMat = streamZoomer(input);
 
 	rulerMain(&outputMat, depth, &intrinsics, rstate);
 
+	end = clock();
+	elapsed = double(end - begin) * 1000000 / CLOCKS_PER_SEC;
 	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
 
 	std::ostringstream strs;
 	strs << elapsedAvg;
-	std::string str = strs.str() + " ms " + distText;
+	std::string str = strs.str() + " us " + distText;
 	streamInfoer(&outputMat, str);
 }
 
 void app::postPhotographer(cv::Mat * input, cv::Mat * depth)
 {
+	begin = clock();
 	photographerRenderer(input, depth);
 	outputMat = streamZoomer(input);
 
+	end = clock();
+	elapsed = double(end - begin) * 1000000 / CLOCKS_PER_SEC;
 	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
 
 	std::ostringstream strs;
 	strs << elapsedAvg;
-	std::string str = strs.str() + " ms " + distText;
+	std::string str = strs.str() + " us " + distText;
 	streamInfoer(&outputMat, str);
 }
 
 void app::postScanner(cv::Mat * input, rs2::depth_frame * depth)
 {
+	begin = clock();
 	outputMat = streamZoomer(input);
 	scannerDrawer(&outputMat, depth, &intrinsics);
 
+	end = clock();
+	elapsed = double(end - begin) * 1000000 / CLOCKS_PER_SEC;
 	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
 
 	std::ostringstream strs;
 	strs << elapsedAvg;
-	std::string str = strs.str() + " ms " + distText;
+	std::string str = strs.str() + " us " + distText;
 	streamInfoer(&outputMat, str);
 }
 
 void app::postMeasurer(cv::Mat * input, rs2::depth_frame * depth)
 {
+	begin = clock();
 	outputMat = streamZoomer(input);
 
 	measurerMain(&outputMat, depth, &intrinsics, mstate);
 
+	end = clock();
+	elapsed = double(end - begin) * 1000000 / CLOCKS_PER_SEC;
 	elapsedAvg = floor((elapsedAvg * 9 + elapsed) / 10);
 
 	std::ostringstream strs;
 	strs << elapsedAvg;
-	std::string str = strs.str() + " ms " + distText;
+	std::string str = strs.str() + " us " + distText;
 	streamInfoer(&outputMat, str);
 }

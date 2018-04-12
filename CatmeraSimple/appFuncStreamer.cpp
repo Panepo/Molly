@@ -39,8 +39,11 @@ void app::streamPointer(cv::Mat* input, rs2::depth_frame* depth, rs2_intrinsics*
 void app::streamInfoer(cv::Mat* input, std::string text)
 {
 	cv::Size size = input->size();
-	cv::copyMakeBorder(*input, *input, 0, 40, 0, 0, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
-	cv::putText(*input, text, cv::Point(10, size.height + 30), inforerFont, 1, inforerColor, 1, cv::LINE_AA);
+	//cv::copyMakeBorder(*input, *input, 0, 40, 0, 0, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
+	//cv::putText(*input, text, cv::Point(10, size.height + 30), inforerFont, 1, inforerColor, 1, cv::LINE_AA);
+
+	cv::putText(*input, text, cv::Point(10, size.height - 10), pointerFontA, 1, pointerColorFA, 1, cv::LINE_AA);
+	cv::putText(*input, text, cv::Point(10, size.height - 10), pointerFontB, 1, pointerColorFB, 1, cv::LINE_AA);
 }
 
 cv::Mat app::streamZoomer(cv::Mat* input)

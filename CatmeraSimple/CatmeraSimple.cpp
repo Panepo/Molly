@@ -105,6 +105,7 @@ void eventKeyboard(appState& state, int stream, std::string windowTitle, cv::Mat
 				state = APPSTATE_INFRARED;
 			break;
 		default:
+			state = APPSTATE_PHOTOGRAPHER;
 			break;
 		}
 	}
@@ -127,6 +128,7 @@ void eventKeyboard(appState& state, int stream, std::string windowTitle, cv::Mat
 				state = APPSTATE_INFRARED;
 			break;
 		default:
+			state = APPSTATE_RULER;
 			break;
 		}
 	}
@@ -149,6 +151,7 @@ void eventKeyboard(appState& state, int stream, std::string windowTitle, cv::Mat
 				state = APPSTATE_INFRARED;
 			break;
 		default:
+			state = APPSTATE_SCANNER;
 			break;
 		}
 	}
@@ -182,6 +185,7 @@ void eventKeyboard(appState& state, int stream, std::string windowTitle, cv::Mat
 				state = APPSTATE_INFRARED;
 			break;
 		default:
+			state = APPSTATE_MEASURER;
 			break;
 		}
 	}

@@ -83,6 +83,9 @@ private:
 	std::string visualPreset = "High Density";
 	rs2::spatial_filter filterSpat;
 	rs2::temporal_filter filterTemp;
+	
+	std::clock_t begin;
+	std::clock_t end;
 	double elapsed = 0;
 	double elapsedAvg = 0;
 
@@ -134,7 +137,7 @@ private:
 	void photographerRenderer(cv::Mat* input, cv::Mat * depth);
 
 	void scannerDrawer(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
-	void scannerProcess(cv::Mat* input, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
+	void scannerProcess(cv::Mat* input, cv::Mat* inputEdge, const rs2::depth_frame* depth, const rs2_intrinsics* intrin);
 	void scannerEventHandler(int event, int x, int y, int flags);
 
 	measurerState mstate = MEASURER_WAIT;

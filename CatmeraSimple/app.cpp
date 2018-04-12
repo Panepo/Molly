@@ -52,7 +52,7 @@ void app::cameraInitial()
 
 void app::cameraProcess()
 {
-	std::clock_t begin = clock();
+	//begin = clock();
 	cv::setMouseCallback(windowTitle, eventMouseS, this);
 	
 	switch (state)
@@ -83,9 +83,8 @@ void app::cameraProcess()
 		break;
 	}
 
-	//eventKeyboard();
-	clock_t end = clock();
-	elapsed = double(end - begin) * 1000 / CLOCKS_PER_SEC;
+	//end = clock();
+	//elapsed = double(end - begin) * 1000 / CLOCKS_PER_SEC;
 }
 
 // =================================================================================
@@ -121,161 +120,6 @@ void app::setVisualPreset(std::string preset)
 // =================================================================================
 // Application events
 // =================================================================================
-
-//void app::eventMouseCV(int event, int x, int y, int flags, int wheel)
-//{
-//	switch (event)
-//	{
-//	case CV_EVENT_MOUSEMOVE:
-//		switch (state)
-//		{
-//		case APPSTATE_COLOR:
-//			if (x >= 0 && x <= ColorWidth)
-//				pixel[0] = (float)x;
-//			if (y >= 0 && y <= ColorHeight)
-//				pixel[1] = (float)y;
-//			break;
-//		case APPSTATE_INFRARED:
-//			if (x >= 0 && x <= DepthWidth)
-//				pixel[0] = (float)x;
-//			if (y >= 0 && y <= DepthHeight)
-//				pixel[1] = (float)y;
-//			break;
-//		case APPSTATE_DEPTH:
-//		case APPSTATE_RULER:
-//			if (stream & EnableColor)
-//			{
-//				if (x >= 0 && x <= ColorWidth)
-//					pixel[0] = (float)x;
-//				if (y >= 0 && y <= ColorHeight)
-//					pixel[1] = (float)y;
-//			}
-//			else if (stream & EnableInfrared)
-//			{
-//				if (x >= 0 && x <= DepthWidth)
-//					pixel[0] = (float)x;
-//				if (y >= 0 && y <= DepthHeight)
-//					pixel[1] = (float)y;
-//			}
-//			break;
-//		case APPSTATE_MEASURER:
-//			if (mstate == MEASURER_PAINT)
-//			{
-//				pixelMeasureB.x = x;
-//				pixelMeasureB.y = y;
-//			}
-//		default:
-//			break;
-//		}
-//		break;
-//	case CV_EVENT_LBUTTONDOWN:
-//		switch (state)
-//		{
-//		case APPSTATE_RULER:
-//			if (stream & EnableColor)
-//			{
-//				if (x >= 0 && x <= ColorWidth)
-//					pixelA[0] = (float)x;
-//				else
-//					pixelA[0] = (float)ColorWidth - 1;
-//				if (y >= 0 && y <= ColorHeight)
-//					pixelA[1] = (float)y;
-//				else
-//					pixelA[1] = (float)ColorHeight - 1;
-//			}
-//			else if (stream & EnableInfrared)
-//			{
-//				if (x >= 0 && x <= DepthWidth)
-//					pixelA[0] = (float)x;
-//				else
-//					pixelA[0] = (float)DepthWidth - 1;
-//				if (y >= 0 && y <= DepthHeight)
-//					pixelA[1] = (float)y;
-//				else
-//					pixelA[1] = (float)DepthHeight - 1;
-//			}
-//			break;
-//		case APPSTATE_MEASURER:
-//			mstate = MEASURER_PAINT;
-//			pixelMeasureA.x = x;
-//			pixelMeasureA.y = y;
-//			break;
-//		}
-//		break;
-//	case CV_EVENT_LBUTTONUP:
-//		switch (state)
-//		{
-//		case APPSTATE_MEASURER:
-//			mstate = MEASURER_RECT;
-//			break;
-//		}
-//		break;
-//	case CV_EVENT_RBUTTONDOWN:
-//		switch (state)
-//		{
-//		case APPSTATE_RULER:
-//			if (stream & EnableColor)
-//			{
-//				if (x >= 0 && x <= ColorWidth)
-//					pixelB[0] = (float)x;
-//				else
-//					pixelB[0] = (float)ColorWidth - 1;
-//				if (y >= 0 && y <= ColorHeight)
-//					pixelB[1] = (float)y;
-//				else
-//					pixelB[1] = (float)ColorHeight - 1;
-//			}
-//			else if (stream & EnableInfrared)
-//			{
-//				if (x >= 0 && x <= DepthWidth)
-//					pixelB[0] = (float)x;
-//				else
-//					pixelB[0] = (float)DepthWidth - 1;
-//				if (y >= 0 && y <= DepthHeight)
-//					pixelB[1] = (float)y;
-//				else
-//					pixelB[1] = (float)DepthHeight - 1;
-//			}
-//			break;
-//		}
-//		break;
-//	case CV_EVENT_MOUSEWHEEL:
-//		switch (state)
-//		{
-//		case APPSTATE_COLOR:
-//		case APPSTATE_INFRARED:
-//		case APPSTATE_DEPTH:
-//		case APPSTATE_RULER:
-//		case APPSTATE_SCANNER:
-//			float pos[2];
-//			
-//			if (scaleZoom == 1)
-//			{
-//				pos[0] = (float)x;
-//				pos[1] = (float)y;
-//			}
-//			else
-//			{
-//				pos[0] = (float)x * scaleZoom + roiZoom[0];
-//				pos[1] = (float)y * scaleZoom + roiZoom[1];
-//			}
-//			
-//			pixelZoom[0] = (int)pos[0];
-//			pixelZoom[1] = (int)pos[1];
-//
-//			if (wheel > 0 && scaleZoom < zoomerScaleMax)
-//				scaleZoom += (float) 0.1;
-//			else if (wheel < 0 && scaleZoom > zoomerScaleMin)
-//				scaleZoom -= (float) 0.1;
-//			break;
-//		default:
-//			break;
-//		}
-//
-//	default:
-//		break;
-//	}
-//}
 
 void app::eventMouseS(int event, int x, int y, int flags, void* userdata)
 {
